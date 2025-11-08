@@ -78,17 +78,17 @@ Understand how it was introduced and how to prevent similar issues.
 ```
 Generate a comprehensive prompt for ChatGPT, Gemini, or other LLMs.
 
-**Reviewing a pull request?** 🚧 *Coming Soon*
+**Reviewing a pull request?**
 ```
 /arc-pr-review https://github.com/owner/repo/pull/123
 ```
-Get a comprehensive code review with detailed analysis.
+Get a comprehensive three-pass validated code review.
 
-**Responding to PR feedback?** 🚧 *Coming Soon*
+**Responding to PR feedback?**
 ```
 /arc-pr-respond https://github.com/owner/repo/pull/123
 ```
-Craft thoughtful responses to code review comments.
+Get validated analysis and prioritized response plan.
 
 ## Structure
 
