@@ -215,8 +215,14 @@ Authentication tokens expired immediately instead of 24 hours
 
 ## Root Cause Investigation
 
-**Breaking Change**: commit def456 on 2024-12-15
+**Breaking Change**:
+- Commit: def456abc
+- Date: 2024-12-15 14:32:18 -0500
+- Author: Jane Developer <jane@example.com>
+- Message: "Refactor: Extract time constants to utilities"
+
 **Original Intent**: Refactor to eliminate magic numbers
+
 **What Happened**:
 - Developer created time.DAY constant (86400000 ms)
 - Used it with jwt.sign({ expiresIn: time.DAY })
@@ -576,7 +582,9 @@ Agent produces:
 # Root Cause Analysis Report
 
 ## Breaking Change
-**Commit**: def789 on 2024-11-15
+**Commit**: def789abc
+**Date**: 2024-11-15 16:45:22 -0500
+**Author**: Bob Smith <bob@example.com>
 **Message**: "Optimize cache key generation"
 **Intent**: Improve performance by simplifying cache keys
 

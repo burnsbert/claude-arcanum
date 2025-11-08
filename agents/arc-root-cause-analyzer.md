@@ -49,6 +49,8 @@ First, determine the bug status and feasibility:
    - Use `git blame` on the fixed lines to find when the buggy code was introduced
    - Use `git log` to trace the history of affected files
    - Find the commit(s) that introduced the problematic code
+   - **CRITICAL**: Extract commit hash, author, and datetime for the breaking change
+   - Use `git show <commit>` or `git log --format=fuller <commit>` to get complete details
    - Look for related changes in the same timeframe
 
 3. **Analyze the Context**
@@ -122,9 +124,15 @@ First, determine the bug status and feasibility:
 
 #### The Breaking Change
 
-**When Introduced**: [commit hash] on [date]
+**Commit**: [full commit hash or short hash]
+**Date**: [YYYY-MM-DD HH:MM:SS timezone]
+**Author**: [author name <email>] (context, not blame)
 **Commit Message**: "[original commit message]"
-**Author**: [author name] (context, not blame)
+
+> **CRITICAL**: These fields are REQUIRED. Always use git commands to extract:
+> - Commit hash: from `git blame` or `git log`
+> - Date/time: from `git show --format=fuller <commit>` or `git log --format="%ai" <commit>`
+> - Author: from `git show --format="%an <%ae>" <commit>` or `git log --format="%an <%ae>" <commit>`
 
 **What Changed**:
 ```[language]
@@ -266,13 +274,27 @@ First, determine the bug status and feasibility:
 
 ### Git Commands to Use
 
+**Essential commands for identifying breaking changes**:
+- `git blame <file>` - See when each line was last modified (returns commit hash)
+- `git show <commit>` - See full details including author, date, message, and changes
+- `git log --format=fuller <commit>` - Get complete commit metadata
+
+**Extracting specific information**:
+- `git log --format="%H" <commit>` - Full commit hash
+- `git log --format="%h" <commit>` - Short commit hash
+- `git log --format="%an <%ae>" <commit>` - Author name and email
+- `git log --format="%ai" <commit>` - Author date (ISO 8601 format)
+- `git log --format="%ci" <commit>` - Committer date (ISO 8601 format)
+- `git log --format="%s" <commit>` - Commit subject (message)
+
+**Additional investigation commands**:
 - `git log -p -- <file>` - See full history of changes to a file
-- `git blame <file>` - See when each line was last modified
 - `git log -S"search term"` - Find commits that added/removed specific code
-- `git show <commit>` - See full details of a specific commit
 - `git log --grep="keyword"` - Search commit messages
 - `git log --follow <file>` - Track file even through renames
 - `git diff <commit1> <commit2> -- <file>` - Compare specific versions
+
+**ALWAYS use these commands to populate commit, date, and author fields in your report.**
 
 ### Analysis Best Practices
 
@@ -358,9 +380,10 @@ User authentication tokens were expiring immediately instead of after 24 hours.
 
 #### The Breaking Change
 
-**When Introduced**: `def456abc` on 2024-12-15
+**Commit**: def456abc
+**Date**: 2024-12-15 14:32:18 -0500
+**Author**: Jane Developer <jane@example.com>
 **Commit Message**: "Refactor time utilities to use milliseconds consistently"
-**Author**: Developer A
 
 **What Changed**:
 ```typescript

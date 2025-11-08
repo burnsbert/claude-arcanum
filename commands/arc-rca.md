@@ -102,8 +102,16 @@ Claude uses the provided information to focus the analysis.
    Known Cause: [what we know so far, or "under investigation"]
    Symptoms: [how it manifests]
 
-   Please provide a comprehensive root cause analysis.
+   Please provide a comprehensive root cause analysis including:
+   - Commit hash that introduced the bug
+   - Date/time of that commit
+   - Author of that commit
+   - Full root cause analysis with prevention recommendations
    ```
+
+   **Note**: The agent will automatically use git commands to extract commit, date,
+   and author information for the breaking change. This is ALWAYS included in the
+   analysis report.
 
 5. **Present Results**
 
