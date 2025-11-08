@@ -33,10 +33,9 @@ Custom Commands                GitHub API
 
 Agent-Powered Commands        Agents (Internal)
 ──────────────────────────    ─────────────────────
-/arc-investigate ──────────▶  ca-brainstormer
-                 │            ca-problem-theory-validator (×5-6 parallel)
-                 │
-                 └─────────▶  ca-store-problem-context (utility)
+/arc-investigate ──────────▶  ca-store-problem-context (utility)
+                 │            ca-brainstormer
+                 └──────────▶ ca-problem-theory-validator (×5-6 parallel)
 
 /arc-rca ──────────────────▶  arc-root-cause-analyzer
 
@@ -311,10 +310,10 @@ Intelligent commands that use specialized agents for deep analysis. These are yo
 
 **Purpose**: Complete troubleshooting workflow that systematically investigates your problem and gives you evidence-based solutions.
 
-**Powered by**:
-- `ca-store-problem-context` (command) - Documents the problem
-- `ca-brainstormer` (agent) - Generates theories
-- `ca-problem-theory-validator` (agent × 5-6 in parallel) - Validates each theory
+**Powered by** (in execution order):
+1. `ca-store-problem-context` (command) - Documents the problem
+2. `ca-brainstormer` (agent) - Generates theories
+3. `ca-problem-theory-validator` (agent × 5-6 in parallel) - Validates each theory
 
 **How It Works**:
 1. **Documents the problem** - Captures what you've been working on from the current session
@@ -995,6 +994,12 @@ read-heavy endpoints. Invalidation uses Redis pub/sub channels.
 
 ### Utility Agents (ca-*)
 
+#### ca-store-problem-context
+
+Extracts and documents problem context from the current session. Creates a `.problem.[timestamp].md` file containing problem description, relevant files with file:line references, error messages, what's been tried, and session context. Used by `/arc-investigate` and `/arc-llm`.
+
+**Example**: Automatically called by `/arc-investigate` to capture problem context before theory generation.
+
 #### ca-brainstormer
 
 Analyzes a problem and generates 5-6 evidence-based theories about what might be causing it. The agent investigates the codebase first, checking basic assumptions and gathering evidence before suggesting causes.
@@ -1095,7 +1100,7 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 
 | Command | When to Use | Powered By | Output |
 |---------|-------------|------------|--------|
-| `/arc-investigate` | Stuck on bug, need systematic analysis | `ca-brainstormer`, `ca-problem-theory-validator` (agents) | Ranked theories with evidence |
+| `/arc-investigate` | Stuck on bug, need systematic analysis | `ca-store-problem-context`, `ca-brainstormer`, `ca-problem-theory-validator` | Ranked theories with evidence |
 | `/arc-rca` | Just fixed bug, want to understand origin | `arc-root-cause-analyzer` (agent) | Root cause report with prevention tips |
 | `/arc-llm` | Need second opinion from external LLM | `ca-store-problem-context` (command) + file reading | Copy-pasteable prompt with all context |
 
@@ -1110,9 +1115,9 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 
 | Agent | Role | Used By |
 |-------|------|---------|
+| `ca-store-problem-context` | Extract problem context | `/arc-investigate`, `/arc-llm` |
 | `ca-brainstormer` | Generate theories | `/arc-investigate` |
 | `ca-problem-theory-validator` | Validate single theory | `/arc-investigate` (×5-6 parallel) |
-| `ca-store-problem-context` | Extract problem context | `/arc-investigate`, `/arc-llm` |
 
 ## Installation
 
@@ -1146,9 +1151,10 @@ They complement each other: investigate to find, rca to understand, llm for seco
 
 Commands are orchestrators that use agents under the hood:
 
-- **`/arc-investigate`** uses:
-  - `ca-brainstormer` agent (generates theories)
-  - `ca-problem-theory-validator` agent (validates each theory in parallel)
+- **`/arc-investigate`** uses (in order):
+  1. `ca-store-problem-context` (extracts problem)
+  2. `ca-brainstormer` agent (generates theories)
+  3. `ca-problem-theory-validator` agent (validates each theory in parallel)
 
 - **`/arc-rca`** uses:
   - `arc-root-cause-analyzer` agent (forensic git analysis)
