@@ -382,7 +382,7 @@ User authentication tokens were expiring immediately instead of after 24 hours.
 
 **Commit**: def456abc
 **Date**: 2024-12-15 14:32:18 -0500
-**Author**: Jane Developer <jane@example.com>
+**Author**: Joe Developer <joe@example.com>
 **Commit Message**: "Refactor time utilities to use milliseconds consistently"
 
 **What Changed**:

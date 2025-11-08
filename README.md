@@ -218,7 +218,7 @@ Authentication tokens expired immediately instead of 24 hours
 **Breaking Change**:
 - Commit: def456abc
 - Date: 2024-12-15 14:32:18 -0500
-- Author: Jane Developer <jane@example.com>
+- Author: Joe Developer <joe@example.com>
 - Message: "Refactor: Extract time constants to utilities"
 
 **Original Intent**: Refactor to eliminate magic numbers
