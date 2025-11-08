@@ -2,6 +2,8 @@
 
 A collection of powerful custom commands and agents for Claude Code that enhance problem-solving, debugging, and root cause analysis workflows.
 
+**📦 [Installation Instructions](INSTALL.md)** | **📚 Documentation Below**
+
 ## Overview
 
 Claude Arcanum provides a comprehensive toolkit for debugging, code review, and problem-solving in Claude Code.
@@ -9,8 +11,8 @@ Claude Arcanum provides a comprehensive toolkit for debugging, code review, and 
 ### V1 Features
 
 **Custom Commands** (Direct GitHub integration)
-- **arc-pr-review** - Perform code reviews on GitHub pull requests 🚧 *Planned*
-- **arc-pr-respond** - Assist in responding to code review comments 🚧 *Planned*
+- **arc-pr-review** - Three-pass validated code reviews on GitHub PRs ✅ *Built*
+- **arc-pr-respond** - Validated feedback analysis and prioritized response plan ✅ *Built*
 
 **Agent-Powered Commands** (Intelligent problem-solving)
 - **arc-investigate** - Automated troubleshooting with theory validation ✅ *Built*
@@ -19,7 +21,7 @@ Claude Arcanum provides a comprehensive toolkit for debugging, code review, and 
 
 **Agents** (Specialized intelligence engines)
 - **arc-root-cause-analyzer** - Forensic bug analysis ✅ *Built*
-- **arc-researcher** - Two-pass investigative research (prioritizes correctness) 🚧 *Planned*
+- **arc-deep-research** - Four-step research methodology (prioritizes correctness) ✅ *Built*
 
 ### Architecture
 
@@ -44,7 +46,7 @@ Agent-Powered Commands        Agents (Internal)
 User-Invokable Agents         Use Cases
 ─────────────────────────     ───────────────────
 arc-root-cause-analyzer  ──▶  Forensic bug analysis
-arc-researcher ─────────────▶ Deep research (two-pass methodology)
+arc-deep-research ───────────▶ Deep research (four-step methodology)
 ```
 
 ### What This Toolkit Provides
@@ -115,54 +117,191 @@ Commands are organized into two categories: direct GitHub integration commands a
 
 Direct commands that interact with GitHub via the `gh` CLI.
 
-#### `/arc-pr-review` - Pull Request Code Review 🚧 *Planned*
+#### `/arc-pr-review` - Three-Pass Validated PR Review ✅ *Built*
 
-**Purpose**: Perform comprehensive code review on GitHub pull requests with systematic analysis.
+**Purpose**: Perform comprehensive code review on GitHub pull requests with three-pass validation to ensure high-quality, accurate feedback.
+
+**Prerequisites**: Requires GitHub CLI (`gh`). Command will automatically detect and offer to install on macOS/Linux/Windows if missing.
 
 **Usage**:
 ```bash
 /arc-pr-review https://github.com/owner/repo/pull/123
+# or
+/arc-pr-review 123
 ```
 
-**What it will do**:
+**How It Works** (Three-Pass Methodology):
+
+**Pass 1: Initial Review**
 - Fetch PR details using `gh` CLI
-- Analyze changed files and diffs
-- Review code for common issues, bugs, and improvements
-- Check for test coverage
-- Verify documentation updates
-- Generate structured review with categorized feedback
+- Analyze changed files and diffs comprehensively
+- Review code against checklist: security, testing, performance, documentation, bugs, quality
+- Generate initial feedback with confidence ratings (High/Medium/Low)
+
+**Pass 2: Validate Feedback**
+- Identify complex/uncertain/borderline feedback items
+- Run ca-code-review-validator agent on each item in parallel
+- Get senior developer assessment: ENDORSE / DISAGREE / NITPICK / etc.
+- Collect validation verdicts and reasoning
+
+**Pass 3: Final Vetted Results**
+- Synthesize validated feedback
+- Remove items that validator disagreed with
+- Add caveats/trade-offs from validator
+- Reclassify nitpicks appropriately
+- Generate clean, confident final review
+
+**What You Get**:
+- High-confidence critical issues (security, bugs, breaking changes)
+- Validated important concerns with trade-offs noted
+- Appropriately categorized minor suggestions
+- Checklist summary across all areas
+- Overall assessment with recommendation
 
 **When to use**:
 - Before approving a pull request
 - When conducting thorough code reviews
-- To ensure consistent review quality across the team
+- To ensure review feedback is accurate and actionable
+- To avoid wasting author time on nitpicks or incorrect feedback
 
-**Status**: Planned for v1 - not yet implemented
+**Example Output**:
+```
+🚨 Critical Issues (Must Fix Before Merge)
+1. Security: SQL injection vulnerability
+   File: api/users.php:45
+   Problem: Query uses string concatenation with user input
+   Solution: Use parameterized query with PDO prepared statements
+   (Validated)
+
+⚠️ Important Concerns (Strongly Recommend Fixing)
+1. Performance: N+1 query in user listing
+   File: controllers/UserController.php:78-92
+   Issue: Loading related data in loop causes 100+ queries
+   Suggestion: Use eager loading with joins
+   Trade-offs: Increases memory usage slightly but improves response time 10x
+
+💭 Minor Suggestions (Consider If Time Allows)
+1. Code Style: Variable naming
+   File: utils/helpers.php:23
+   Current: $d for datetime
+   Alternative: $datetime for clarity
+   Note: Style preference, not blocking
+```
+
+**Status**: Built and ready to use
 
 ---
 
-#### `/arc-pr-respond` - PR Review Response Assistant 🚧 *Planned*
+#### `/arc-pr-respond` - Validated Feedback Analysis ✅ *Built*
 
-**Purpose**: Assist in crafting thoughtful, professional responses to code review comments on your pull requests.
+**Purpose**: Analyze PR review feedback with validation, provide assessments, and create prioritized response plan.
+
+**Prerequisites**: Requires GitHub CLI (`gh`). Command will automatically detect and offer to install on macOS/Linux/Windows if missing.
 
 **Usage**:
 ```bash
 /arc-pr-respond https://github.com/owner/repo/pull/123
+/arc-pr-respond 123 humans              # Only human reviewers
+/arc-pr-respond 123 brian michael       # Specific reviewers
 ```
 
-**What it will do**:
-- Fetch PR and review comments using `gh` CLI
-- Analyze feedback and understand context
-- Help draft responses to reviewer comments
-- Suggest code changes to address feedback
-- Generate commit messages for review-driven changes
+**How It Works** (Two-Pass Methodology):
+
+**Pass 1: Fetch and Categorize**
+- Fetch all three types of PR comments (reviews, inline, issue comments)
+- Parse and categorize each feedback item
+- Assess complexity (Simple/Moderate/Complex)
+- Identify items needing validation vs. obvious items
+
+**Pass 2: Validate Complex Items**
+- Run ca-code-review-validator agent on complex/uncertain feedback (subset only)
+- Get objective assessment of each reviewer's feedback: Valid/Invalid/Nitpick/etc.
+- Understand trade-offs and implications
+- Skip obvious items (typos, clear bugs) to save time
+
+**Synthesis: Final Analysis**
+- Synthesize all feedback with validator insights
+- Provide assessment for each item (✅ Valid / ⚠️ Partially Valid / ❌ Invalid / 🔵 Nitpick / 💬 Question)
+- Assign priorities (🔴 High / 🟡 Medium / 🟢 Low / ⚪ No Action)
+- Draft professional responses
+- Create action plan by priority
+
+**What You Get**:
+
+```
+📊 Overview
+- Total items by reviewer
+- Priority breakdown
+- Validation summary
+
+📋 Detailed Analysis
+For each feedback item:
+- Full context and feedback text
+- Validated assessment
+- Priority level
+- Recommended response
+- Recommended action
+
+🎯 Action Plan
+- Priority 1: Address before merge
+- Priority 2: Should address
+- Priority 3: Nice to have
+- Responses only (no code changes)
+
+💬 Draft Responses
+Ready-to-post responses for each item
+```
 
 **When to use**:
-- Responding to code review feedback
-- Addressing reviewer concerns systematically
-- Ensuring professional communication in reviews
+- Received PR review feedback and need to respond
+- Want objective assessment of feedback validity
+- Need to prioritize which feedback to address
+- Ensure professional, thoughtful responses
 
-**Status**: Planned for v1 - not yet implemented
+**Example Output Snippet**:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**A1. Brian - Performance concern with database queries**
+
+Location: `services/UserService.php:45-67`
+
+Feedback:
+"This loops through users and loads their orders one by one. This will
+cause N+1 queries. Consider using eager loading."
+
+Assessment: ✅ Valid
+(Validator confirmed: N+1 query pattern will cause 100+ queries for typical dataset)
+
+Priority: 🔴 High
+
+Recommended Response:
+"You're absolutely right - this is an N+1 query issue. I'll refactor to use
+eager loading with joins. Good catch!"
+
+Recommended Action:
+Fix the code - Refactor to use eager loading in UserService.php:45-67
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**A2. Brian - Variable naming suggestion**
+
+Location: `utils/helpers.php:23`
+
+Feedback:
+"Consider using $datetime instead of $d for clarity"
+
+Assessment: 🔵 Minor/Nitpick
+(Validator assessment: Style preference, not impacting functionality)
+
+Priority: 🟢 Low
+
+Recommended Response:
+"Good point - I'll update this for better readability."
+
+Recommended Action:
+Quick fix - Rename variable (30 seconds)
+```
+
+**Status**: Built and ready to use
 
 ---
 
@@ -722,30 +861,39 @@ const cacheKey = `${userId}_${resource}`; // Removed timestamp!
 
 ---
 
-#### `arc-researcher` - Two-Pass Research Agent 🚧 *Planned*
+#### `arc-deep-research` - Four-Step Research Agent ✅ *Built*
 
-**Purpose**: Deep investigative research using a two-pass methodology that prioritizes correctness over speed. Ideal for complex technical questions that require thorough investigation.
+**Purpose**: Deep investigative research using a three-pass methodology that prioritizes correctness over speed. Ideal for complex technical questions that require thorough investigation, verification, and synthesis.
 
 **This is a standalone research agent** - Unlike arc-root-cause-analyzer which is primarily called by `/arc-rca`, this agent is designed for direct invocation when you need comprehensive research.
 
-**Two-Pass Methodology**:
+**Three-Pass Methodology**:
 
-**Pass 1 - Broad Discovery**:
+**Pass 1 - Initial Research (Broad Discovery)**:
 - Casts a wide net across the codebase, documentation, and related resources
 - Identifies all potentially relevant information
 - Maps out the landscape of the problem space
 - Generates initial hypotheses and areas to investigate
 
-**Pass 2 - Rigorous Verification**:
+**Pass 2 - Verification & Extrapolation**:
 - Deeply investigates the most promising leads from Pass 1
 - Verifies claims against actual code and documentation
 - Tests hypotheses through systematic examination
-- Eliminates false positives and incorrect assumptions
-- Synthesizes findings into accurate, comprehensive answer
+- Discovers gaps and finds additional relevant information
+- Assesses confidence level for each finding
+
+**Pass 3 - Synthesis & Coherent Response**:
+- Organizes verified information logically
+- Synthesizes findings into comprehensive, clear answer
+- Provides file:line references for all claims
+- Documents limitations and uncertainties
+- Includes related considerations and recommendations
 
 **Usage** (via Task tool):
 ```
-Use the arc-researcher agent to investigate:
+Use the arc-deep-research agent to investigate:
+
+ultrathink
 
 Question: How does the authentication flow work from login to token validation?
 
@@ -755,62 +903,83 @@ complete auth flow including middleware, validation, and token refresh.
 
 **What You Get**:
 
-**1. Discovery Summary**
+**1. Pass 1: Initial Research**
 - All relevant files, functions, and components identified
 - Related documentation and comments found
-- Initial hypotheses about the answer
+- Initial hypotheses and preliminary answers
+- Gaps and questions for deeper investigation
 
-**2. Verification Results**
-- Each hypothesis tested and verified/rejected
-- Code evidence for confirmed findings
+**2. Pass 2: Verification & Extrapolation**
+- Each finding verified against actual code
 - Corrections to initial assumptions
+- Newly discovered information and gaps
+- Confidence assessment (High/Medium/Low)
 
-**3. Comprehensive Answer**
-- Accurate, detailed explanation backed by code
-- File and line references for every claim
-- Flow diagrams or step-by-step breakdowns where helpful
-- Related considerations and edge cases
-
-**4. Confidence Assessment**
-- What is definitively confirmed
-- What remains uncertain or ambiguous
-- Recommendations for further investigation if needed
+**3. Pass 3: Comprehensive Synthesis**
+- Clear, organized answer to the research question
+- File and line references for all claims
+- Important considerations (edge cases, performance, security)
+- Related areas and recommendations
 
 **Example Direct Invocation**:
 ```
 You: I need to understand how the caching layer works with Redis
 
-Claude: [Uses Task tool to invoke arc-researcher]
+Claude: [Uses Task tool to invoke arc-deep-research with "ultrathink"]
 
 Agent produces:
 
 # Research Report: Redis Caching Layer
 
-## Discovery Phase
+## Pass 1: Initial Research
 Found 3 primary files implementing caching:
 - src/cache/redisClient.ts - Connection and client management
 - src/cache/cacheService.ts - High-level caching API
 - src/middleware/cacheMiddleware.ts - Express middleware
 
 Initial hypothesis: Two-tier caching (memory + Redis)
+Need to verify: invalidation strategy, TTL values, fallback behavior
 
-## Verification Phase
-Confirmed: Two-tier architecture with L1 (in-memory) and L2 (Redis)
-- L1 cache: src/cache/memoryCache.ts:15-89
-- TTL: 60 seconds for L1, 3600 seconds for L2
-- Invalidation: Pub/sub pattern using Redis channels
+## Pass 2: Verification & Extrapolation
+Verified Findings:
+- Confirmed: Two-tier architecture with L1 (in-memory) and L2 (Redis)
+  - L1 cache: src/cache/memoryCache.ts:15-89
+  - TTL: 60 seconds for L1, 3600 seconds for L2
+  - Invalidation: Pub/sub pattern using Redis channels
 
-Rejected: Initial assumption about cache-aside pattern
-- Actually uses write-through for critical data
+Corrections:
+- Rejected: Initial assumption about cache-aside pattern
+- Actually uses write-through for critical data (src/cache/cacheService.ts:45-67)
 - Cache-aside only for read-heavy endpoints
 
-## Complete Flow
-[Detailed explanation with file:line references...]
+Newly Discovered:
+- Connection pooling with max 10 connections (redisClient.ts:12)
+- Automatic retry logic with exponential backoff (redisClient.ts:89-105)
 
-## Confidence Assessment
-✅ Confirmed: Architecture, TTL values, invalidation strategy
-⚠️ Uncertain: Behavior during Redis outage (no explicit fallback code found)
-📋 Recommend: Review disaster recovery documentation
+Confidence Assessment:
+✅ High: Architecture, TTL values, invalidation strategy
+⚠️ Medium: Error handling completeness
+❓ Low: Behavior during Redis outage (no explicit fallback code found)
+
+## Pass 3: Comprehensive Synthesis
+
+### Direct Answer
+The caching layer uses a two-tier architecture with in-memory (L1) and Redis (L2)
+caches, employing a write-through pattern for critical data and cache-aside for
+read-heavy endpoints. Invalidation uses Redis pub/sub channels.
+
+### Complete Flow
+[Detailed step-by-step with file:line references...]
+
+### Important Considerations
+- Edge Cases: Handles cache misses, connection failures
+- Performance: L1 reduces Redis load by 60-80% (based on TTL ratios)
+- Security: No sensitive data cached; all keys namespaced
+
+### Confidence Assessment
+✅ Confirmed: Architecture, TTL values, invalidation strategy, connection pooling
+⚠️ Uncertain: Behavior during Redis outage
+📋 Recommend: Review disaster recovery documentation and add fallback tests
 ```
 
 **When to Use Directly**:
@@ -822,11 +991,11 @@ Rejected: Initial assumption about cache-aside pattern
 - Planning major refactors or architectural changes
 
 **Prioritizes Correctness Over Speed**:
-- Takes longer than simple searches (2-pass methodology)
+- Takes longer than simple searches (3-pass methodology: 15-45 minutes)
 - Worth the time when accuracy is critical
 - Reduces the risk of pursuing wrong approaches based on incorrect assumptions
 
-**Status**: Planned for v1 - not yet implemented
+**Status**: Built - ready to use
 
 ---
 
@@ -925,8 +1094,8 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 
 | Command | When to Use | Status |
 |---------|-------------|--------|
-| `/arc-pr-review [url]` | Review pull requests systematically | 🚧 Planned |
-| `/arc-pr-respond [url]` | Respond to PR review feedback | 🚧 Planned |
+| `/arc-pr-review [url]` | Three-pass validated PR reviews | ✅ Built |
+| `/arc-pr-respond [url]` | Validated feedback analysis with priorities | ✅ Built |
 
 ### Agent-Powered Commands (Problem-Solving)
 
@@ -941,7 +1110,7 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 | Agent | Role | Used By | Invoke Via | Status |
 |-------|------|---------|-----------|--------|
 | `arc-root-cause-analyzer` | Forensic git analysis | `/arc-rca` | Task tool or `/arc-rca` command | ✅ Built |
-| `arc-researcher` | Two-pass research (prioritizes correctness) | Direct invocation | Task tool only | 🚧 Planned |
+| `arc-deep-research` | Four-step research (prioritizes correctness) | Direct invocation | Task tool only | ✅ Built |
 
 ### Utility Agents (Internal)
 
@@ -953,7 +1122,21 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 
 ## Installation
 
-Installation scripts coming soon.
+**Prerequisites:**
+- GitHub CLI (`gh`) required for `/arc-pr-review` and `/arc-pr-respond`
+- **Auto-installs if missing** - Commands detect macOS/Linux/Windows and install automatically
+- Manual install: `brew install gh` (macOS) or see [INSTALL.md](INSTALL.md)
+
+**Quick Install:**
+```bash
+# From the claude-arcanum directory
+cp commands/*.md ~/.claude/commands/
+cp agents/*.md ~/.claude/agents/
+```
+
+Done! All commands and agents are now available globally in Claude Code.
+
+**For detailed installation instructions, platform-specific notes, selective installation, and troubleshooting**, see **[INSTALL.md](INSTALL.md)**.
 
 ## FAQ & Tips
 
@@ -1021,7 +1204,7 @@ Internal working file that captures problem context with file:line references. U
 
 ### Do I need to install anything?
 
-Installation scripts coming soon. For now, manually copy the command and agent files to your Claude Code configuration directories.
+Yes, you need to copy the command and agent files to your Claude Code configuration directories. See the [Installation](#installation) section or [INSTALL.md](INSTALL.md) for complete instructions.
 
 ## Naming Conventions
 

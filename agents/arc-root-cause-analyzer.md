@@ -1,3 +1,10 @@
+---
+name: arc-root-cause-analyzer
+description: Forensic bug analysis using git archaeology. Traces bugs back to their origin, analyzes why they were introduced, vets fixes for completeness, finds similar bugs elsewhere in codebase, and provides prevention recommendations. Use after fixing a bug or for post-mortem analysis.
+tools: Glob, Grep, Read, Bash, TodoWrite
+color: green
+---
+
 # Arc Root Cause Analyzer Agent
 
 ## Purpose

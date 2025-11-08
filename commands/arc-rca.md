@@ -85,7 +85,7 @@ Claude uses the provided information to focus the analysis.
 
 4. **Invoke the arc-root-cause-analyzer Agent**
 
-   Use the Task tool to launch the agent with:
+   Use the Task tool to launch the agent:
    ```
    Please analyze the root cause of this bug:
 

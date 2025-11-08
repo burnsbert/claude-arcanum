@@ -1,3 +1,10 @@
+---
+name: ca-problem-theory-validator
+description: Internal agent used by arc-investigate (5-6 instances in parallel). Rigorously vets a single theory through systematic investigation. Attempts to prove/disprove with code evidence, returns PROVEN/DISPROVEN/UNCERTAIN with next steps.
+tools: Glob, Grep, Read, Bash, TodoWrite
+color: blue
+---
+
 # CA Problem Theory Validator Agent
 
 ## Purpose

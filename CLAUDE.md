@@ -4,116 +4,129 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Claude Arcanum is a collection of custom commands and agents for Claude Code that enhance debugging and problem-solving workflows. The tools work together to provide systematic troubleshooting, root cause analysis, and external LLM consultation.
+Claude Arcanum is a collection of custom commands and agents for Claude Code that enhance debugging and problem-solving workflows. The tools provide systematic troubleshooting, root cause analysis, and external LLM consultation.
 
-## Architecture
+## Repository Structure
+
+```
+claude-arcanum/
+├── commands/          # Custom slash commands (arc-*, ca-*)
+├── agents/            # Agent definitions (arc-*, ca-*)
+├── scripts/           # Installation utilities
+└── README.md          # Comprehensive documentation
+```
+
+## Architecture & Design Principles
 
 ### Naming Convention (CRITICAL)
 
-- **arc-*** - User-facing commands and agents (direct use)
-- **ca-*** - Utility commands and agents (internal use only)
+- **arc-*** - User-facing tools (direct invocation)
+- **ca-*** - Utility tools (internal use only)
 
-This distinction is fundamental to the design. Users interact with `arc-*` tools, which internally orchestrate `ca-*` utilities.
+This is fundamental to the design. Users interact with `arc-*` tools, which orchestrate `ca-*` utilities behind the scenes.
 
-### Key Design Principles
+### Core Design Principles
 
-1. **Context Extraction**: Commands auto-extract from current session - minimal user input
-2. **No Unnecessary Files**: Display output directly, don't create files unless needed for inter-tool communication
-3. **Parallel Execution**: arc-investigate validates theories in parallel for speed
+1. **Context Extraction**: Commands auto-extract from current session - minimal user input required
+2. **Display Over Files**: Output directly to user; only create files when needed for tool chaining
+3. **Parallel Execution**: arc-investigate validates theories in parallel using single message with multiple Task calls
 4. **Evidence-Based**: All analysis backed by code investigation, not speculation
 
-### File Outputs
+### File Management
 
-**Only one file type is created**: `.problem.[timestamp].md`
-- Used as input for other commands/agents
+**Single file type created**: `.problem.[timestamp].md`
+- Input format for command/agent chaining
 - Contains file:line references (assumes filesystem access)
 - Follows `.*.md` gitignore pattern
 
-**Previously removed**:
-- `.investigation.[timestamp].md` - Not needed, display directly
-- `.llm-prompt.[timestamp].md` - Not needed, display directly
+**Note**: Previously created `.investigation.*.md` and `.llm-prompt.*.md` files were removed - results display directly instead.
 
-## Tool Relationships
+## Tool Workflows
 
+### arc-investigate
 ```
-arc-investigate:
-  1. Calls ca-store-problem-context (creates .problem.md)
-  2. Calls ca-brainstormer (generates theories)
-  3. Spawns ca-problem-theory-validator × N in parallel
-  4. Synthesizes and displays results
+1. ca-store-problem-context → Creates .problem.md
+2. ca-brainstormer → Generates 5-6 theories
+3. ca-problem-theory-validator × N (parallel) → Validates each theory
+4. Synthesizes → Displays ranked results (PROVEN/HIGH CONFIDENCE/WORTH INVESTIGATING/RULED OUT)
+```
 
-arc-rca:
-  1. Extracts context from session
-  2. Calls arc-root-cause-analyzer agent
-  3. Displays results with action options
+### arc-rca
+```
+1. Extract context from session (or use parameter)
+2. arc-root-cause-analyzer agent → Git forensics + root cause analysis
+3. Display results with action options
+```
 
-arc-llm:
-  1. Calls ca-store-problem-context (if needed)
-  2. Reads all referenced files
-  3. Generates self-contained prompt
-  4. Displays for copy-pasting
+### arc-llm
+```
+1. ca-store-problem-context (if needed)
+2. Read all referenced files
+3. Generate self-contained prompt (200-500 lines)
+4. Display for copy-pasting to external LLM
 ```
 
 ## Development Guidelines
 
-### Adding New Commands
+### Adding Commands
 
-1. Determine if it's user-facing (arc-) or utility (ca-)
-2. Create command file in `commands/` directory
-3. Follow existing format with clear sections:
-   - Instructions (what Claude should do)
-   - Usage scenarios
-   - Output format
-   - Important notes
-4. Update README with comprehensive documentation
+1. Choose prefix: `arc-` (user-facing) or `ca-` (utility)
+2. Create in `commands/` with sections: purpose, instructions, usage, output format, examples
+3. Update README.md with comprehensive documentation including "How It Works" and workflows
 
-### Adding New Agents
+### Adding Agents
 
-1. Determine if it's user-facing (arc-) or utility (ca-)
-2. Create agent file in `agents/` directory
-3. Include:
-   - Purpose and when to use
-   - Investigation protocol
-   - Output format
-   - Example analyses
-4. Update README with examples
+1. Choose prefix: `arc-` (user-facing) or `ca-` (utility)
+2. Create in `agents/` with: purpose, investigation protocol, output format, examples
+3. Update README.md with usage examples and when to invoke
 
 ### Documentation Standards
 
-- **Be comprehensive**: Include "How It Works", usage examples, when to use
-- **Show examples**: Real example sessions with input/output
-- **Provide workflows**: Show how tools work together
-- **Answer FAQs**: Anticipate user questions
+- Include complete examples with input/output
+- Show how tools integrate with each other
+- Provide clear "when to use" guidance
+- Keep CLAUDE.md focused on architecture, not exhaustive feature lists (that's for README)
 
-## Testing Notes
+## Key Implementation Patterns
 
-Not yet tested in live Claude Code environment. When testing:
-- Verify context extraction from sessions works correctly
-- Ensure parallel agent invocation in arc-investigate works
-- Test with both fixed and unfixed bugs for arc-rca
-- Validate arc-llm prompts work well with external LLMs
+### Context Extraction
 
-## Common Patterns
-
-### Auto-extracting from Session
-
-Commands should analyze conversation history for:
-- Files that were discussed, read, or modified
+Commands analyze conversation history for:
+- Files discussed, read, or modified (via Read/Edit tool usage)
 - Error messages and symptoms
-- What's been tried
-- Git commits and changes
+- What's been tried already
+- Git operations (commits, diffs)
 - Test results
+
+### Extended Thinking for Agents
+
+**For ca-brainstormer only**: Invoke with "ultrathink" keyword for deep theory generation:
+- Start Task tool prompts with "ultrathink\n\n..."
+- Enables ~32K token thinking budget vs default 4K
+- This agent generates initial theories and benefits from extended thinking
 
 ### Parallel Agent Invocation
 
-Use single message with multiple Task tool calls:
+For arc-investigate: Launch all validators in single message with multiple Task tool calls
 ```markdown
-[Uses Task tool to spawn 5 validators in parallel]
+[Launches 5 ca-problem-theory-validator agents in parallel using single message]
 ```
 
-### Status Determination
+### Bug Status Determination
 
-For arc-rca, determine if bug is fixed by looking for:
-- Recent commits in session
-- User saying "fixed", "solved", "resolved"
+For arc-rca, determine if bug is fixed by checking for:
+- Recent commits in session (git commit commands)
+- User statements ("fixed", "solved", "resolved")
 - Tests passing after changes
+- Edit tool usage followed by successful test runs
+
+### RCA Report Requirements
+
+The arc-root-cause-analyzer agent MUST include in all reports:
+- **Commit hash** of the breaking change
+- **Date/time** when bug was introduced
+- **Author** of the breaking change
+- Full root cause analysis
+- Prevention recommendations
+
+Use `git log --format=fuller` or `git show` to extract complete commit metadata.

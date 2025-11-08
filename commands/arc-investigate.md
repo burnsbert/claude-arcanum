@@ -35,6 +35,8 @@ This is a top-level orchestration command that runs a complete troubleshooting w
 ### Phase 2: Generate Theories
 
 3. **Invoke the ca-brainstormer agent** with the problem context file
+   - Use the Task tool with "ultrathink" at the start of the prompt for deep analysis
+   - Example prompt: "ultrathink\n\nAnalyze the problem context in .problem.[timestamp].md and generate 5-6 theories..."
    - Wait for the agent to complete its investigation
    - The agent will return 5-6 theories ordered by likelihood
    - Extract the list of theories from the agent's output
@@ -54,6 +56,7 @@ This is a top-level orchestration command that runs a complete troubleshooting w
 
 5. **Launch multiple ca-problem-theory-validator agents** - one for each theory
    - Use the Task tool to launch agents IN PARALLEL (single message with multiple Task calls)
+   - Example prompt: "Validate theory #1 from .problem.[timestamp].md: [theory description]..."
    - Each agent gets the problem context file + one specific theory to validate
    - This is the most time-consuming phase but parallelization makes it efficient
 
@@ -178,6 +181,10 @@ What would you like to do?
 ```
 
 ## Important Implementation Notes
+
+### Extended Thinking
+- **CRITICAL**: Always include "ultrathink" at the start of ca-brainstormer prompts for deep analysis
+- This enables extended thinking mode (~32K token budget) for complex reasoning
 
 ### Parallel Execution
 - **CRITICAL**: Launch all validator agents in parallel using a single message with multiple Task tool calls

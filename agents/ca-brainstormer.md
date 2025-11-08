@@ -1,3 +1,10 @@
+---
+name: ca-brainstormer
+description: Internal agent used by arc-investigate. Generates 5-6 evidence-based theories about problem causes after conducting investigative research. Checks codebase, verifies assumptions, provides evidence for each theory. Invoked with "ultrathink" for deep analysis.
+tools: Glob, Grep, Read, Bash, TodoWrite
+color: blue
+---
+
 # CA Brainstormer Agent
 
 ## Purpose
