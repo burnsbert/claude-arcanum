@@ -10,6 +10,23 @@ Claude Arcanum provides a systematic approach to debugging and understanding cod
 - **arc-rca** - Root cause analysis: traces bugs to their origin through git history
 - **arc-llm** - External consultation: generates prompts for other LLMs
 
+### Architecture
+
+```
+User Commands (arc-*)          Agents (Internal)
+─────────────────────         ─────────────────────
+
+/arc-investigate ──────────▶  ca-brainstormer
+                 │            ca-problem-theory-validator (×5-6 parallel)
+                 │
+                 └─────────▶  ca-store-problem-context (utility)
+
+/arc-rca ──────────────────▶  arc-root-cause-analyzer
+
+/arc-llm ──────────────────▶  ca-store-problem-context (utility)
+                              + direct file reading
+```
+
 These tools work together to help you:
 - Solve problems faster with evidence-based analysis
 - Understand how bugs were introduced and how to prevent them
@@ -64,6 +81,11 @@ These are your main entry points - designed for direct use when working on probl
 #### `/arc-investigate` - Automated Troubleshooting
 
 **Purpose**: Complete troubleshooting workflow that systematically investigates your problem and gives you evidence-based solutions.
+
+**Powered by**:
+- `ca-store-problem-context` (command) - Documents the problem
+- `ca-brainstormer` (agent) - Generates theories
+- `ca-problem-theory-validator` (agent × 5-6 in parallel) - Validates each theory
 
 **How It Works**:
 1. **Documents the problem** - Captures what you've been working on from the current session
@@ -146,6 +168,9 @@ What would you like to do?
 #### `/arc-rca` - Root Cause Analysis
 
 **Purpose**: Forensic investigation that traces bugs back to their origin, helping you understand how they were introduced and how to prevent them in the future.
+
+**Powered by**:
+- `arc-root-cause-analyzer` (agent) - Performs forensic git analysis
 
 **How It Works**:
 1. **Extracts context** - Automatically gathers info from your session (or uses provided details)
@@ -278,6 +303,10 @@ Would you like to:
 #### `/arc-llm` - External LLM Consultation
 
 **Purpose**: Generates a comprehensive, self-contained prompt that you can copy-paste into ChatGPT, Google Gemini, or any other LLM to get external help.
+
+**Powered by**:
+- `ca-store-problem-context` (command) - Documents the problem
+- Direct file reading and code extraction (no agents)
 
 **Why This Exists**: Sometimes you need a second opinion or want to consult a specialized model. This command packages up your entire problem with all necessary code context so the other LLM doesn't need filesystem access.
 
@@ -682,17 +711,21 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 
 ## Quick Reference
 
-| Command | When to Use | Output |
-|---------|-------------|--------|
-| `/arc-investigate` | Stuck on bug, need systematic analysis | Ranked theories with evidence |
-| `/arc-rca` | Just fixed bug, want to understand origin | Root cause report with prevention tips |
-| `/arc-llm` | Need second opinion from external LLM | Copy-pasteable prompt with all context |
+### Commands
 
-| Agent | When to Use | Invoke Via |
-|-------|-------------|-----------|
-| `arc-root-cause-analyzer` | Custom RCA workflows | Task tool or `/arc-rca` command |
-| `ca-brainstormer` | Generate theories (internal) | `/arc-investigate` command |
-| `ca-problem-theory-validator` | Validate theory (internal) | `/arc-investigate` command |
+| Command | When to Use | Powered By | Output |
+|---------|-------------|------------|--------|
+| `/arc-investigate` | Stuck on bug, need systematic analysis | `ca-brainstormer`, `ca-problem-theory-validator` (agents) | Ranked theories with evidence |
+| `/arc-rca` | Just fixed bug, want to understand origin | `arc-root-cause-analyzer` (agent) | Root cause report with prevention tips |
+| `/arc-llm` | Need second opinion from external LLM | `ca-store-problem-context` (command) + file reading | Copy-pasteable prompt with all context |
+
+### Agents
+
+| Agent | Role | Used By | Invoke Via |
+|-------|------|---------|-----------|
+| `arc-root-cause-analyzer` | Forensic git analysis | `/arc-rca` | Task tool or `/arc-rca` command |
+| `ca-brainstormer` | Generate theories | `/arc-investigate` | `/arc-investigate` command |
+| `ca-problem-theory-validator` | Validate single theory | `/arc-investigate` | `/arc-investigate` command (spawns multiple in parallel) |
 
 ## Installation
 
@@ -707,6 +740,22 @@ Installation scripts coming soon.
 **arc-llm** → Getting external help (packages problem for other LLMs)
 
 They complement each other: investigate to find, rca to understand, llm for second opinions.
+
+### Which commands use which agents?
+
+Commands are orchestrators that use agents under the hood:
+
+- **`/arc-investigate`** uses:
+  - `ca-brainstormer` agent (generates theories)
+  - `ca-problem-theory-validator` agent (validates each theory in parallel)
+
+- **`/arc-rca`** uses:
+  - `arc-root-cause-analyzer` agent (forensic git analysis)
+
+- **`/arc-llm`** uses:
+  - No agents - directly reads files and generates prompts
+
+You rarely need to invoke agents directly - the commands handle it for you.
 
 ### When should I use /arc-investigate vs /arc-rca?
 
