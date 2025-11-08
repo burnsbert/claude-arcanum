@@ -11,17 +11,17 @@ Claude Arcanum provides a comprehensive toolkit for debugging, code review, and 
 ### V1 Features
 
 **Custom Commands** (Direct GitHub integration)
-- **arc-pr-review** - Three-pass validated code reviews on GitHub PRs ✅ *Built*
-- **arc-pr-respond** - Validated feedback analysis and prioritized response plan ✅ *Built*
+- **arc-pr-review** - Three-pass validated code reviews on GitHub PRs
+- **arc-pr-respond** - Validated feedback analysis and prioritized response plan
 
 **Agent-Powered Commands** (Intelligent problem-solving)
-- **arc-investigate** - Automated troubleshooting with theory validation ✅ *Built*
-- **arc-llm** - Generate prompts for external LLM consultation ✅ *Built*
-- **arc-rca** - Root cause analysis with git forensics ✅ *Built*
+- **arc-investigate** - Automated troubleshooting with theory validation
+- **arc-llm** - Generate prompts for external LLM consultation
+- **arc-rca** - Root cause analysis with git forensics
 
 **Agents** (Specialized intelligence engines)
-- **arc-root-cause-analyzer** - Forensic bug analysis ✅ *Built*
-- **arc-deep-research** - Four-step research methodology (prioritizes correctness) ✅ *Built*
+- **arc-root-cause-analyzer** - Forensic bug analysis
+- **arc-deep-research** - Four-step research methodology (prioritizes correctness)
 
 ### Architecture
 
@@ -117,7 +117,7 @@ Commands are organized into two categories: direct GitHub integration commands a
 
 Direct commands that interact with GitHub via the `gh` CLI.
 
-#### `/arc-pr-review` - Three-Pass Validated PR Review ✅ *Built*
+#### `/arc-pr-review` - Three-Pass Validated PR Review
 
 **Purpose**: Perform comprehensive code review on GitHub pull requests with three-pass validation to ensure high-quality, accurate feedback.
 
@@ -188,11 +188,9 @@ Direct commands that interact with GitHub via the `gh` CLI.
    Note: Style preference, not blocking
 ```
 
-**Status**: Built and ready to use
-
 ---
 
-#### `/arc-pr-respond` - Validated Feedback Analysis ✅ *Built*
+#### `/arc-pr-respond` - Validated Feedback Analysis
 
 **Purpose**: Analyze PR review feedback with validation, provide assessments, and create prioritized response plan.
 
@@ -300,8 +298,6 @@ Recommended Response:
 Recommended Action:
 Quick fix - Rename variable (30 seconds)
 ```
-
-**Status**: Built and ready to use
 
 ---
 
@@ -861,7 +857,7 @@ const cacheKey = `${userId}_${resource}`; // Removed timestamp!
 
 ---
 
-#### `arc-deep-research` - Four-Step Research Agent ✅ *Built*
+#### `arc-deep-research` - Four-Step Research Agent
 
 **Purpose**: Deep investigative research using a three-pass methodology that prioritizes correctness over speed. Ideal for complex technical questions that require thorough investigation, verification, and synthesis.
 
@@ -995,8 +991,6 @@ read-heavy endpoints. Invalidation uses Redis pub/sub channels.
 - Worth the time when accuracy is critical
 - Reduces the risk of pursuing wrong approaches based on incorrect assumptions
 
-**Status**: Built - ready to use
-
 ---
 
 ### Utility Agents (ca-*)
@@ -1092,33 +1086,33 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 
 ### Custom Commands (GitHub Integration)
 
-| Command | When to Use | Status |
-|---------|-------------|--------|
-| `/arc-pr-review [url]` | Three-pass validated PR reviews | ✅ Built |
-| `/arc-pr-respond [url]` | Validated feedback analysis with priorities | ✅ Built |
+| Command | When to Use |
+|---------|-------------|
+| `/arc-pr-review [url]` | Three-pass validated PR reviews |
+| `/arc-pr-respond [url]` | Validated feedback analysis with priorities |
 
 ### Agent-Powered Commands (Problem-Solving)
 
-| Command | When to Use | Powered By | Output | Status |
-|---------|-------------|------------|--------|--------|
-| `/arc-investigate` | Stuck on bug, need systematic analysis | `ca-brainstormer`, `ca-problem-theory-validator` (agents) | Ranked theories with evidence | ✅ Built |
-| `/arc-rca` | Just fixed bug, want to understand origin | `arc-root-cause-analyzer` (agent) | Root cause report with prevention tips | ✅ Built |
-| `/arc-llm` | Need second opinion from external LLM | `ca-store-problem-context` (command) + file reading | Copy-pasteable prompt with all context | ✅ Built |
+| Command | When to Use | Powered By | Output |
+|---------|-------------|------------|--------|
+| `/arc-investigate` | Stuck on bug, need systematic analysis | `ca-brainstormer`, `ca-problem-theory-validator` (agents) | Ranked theories with evidence |
+| `/arc-rca` | Just fixed bug, want to understand origin | `arc-root-cause-analyzer` (agent) | Root cause report with prevention tips |
+| `/arc-llm` | Need second opinion from external LLM | `ca-store-problem-context` (command) + file reading | Copy-pasteable prompt with all context |
 
 ### User Agents
 
-| Agent | Role | Used By | Invoke Via | Status |
-|-------|------|---------|-----------|--------|
-| `arc-root-cause-analyzer` | Forensic git analysis | `/arc-rca` | Task tool or `/arc-rca` command | ✅ Built |
-| `arc-deep-research` | Four-step research (prioritizes correctness) | Direct invocation | Task tool only | ✅ Built |
+| Agent | Role | Used By | Invoke Via |
+|-------|------|---------|-----------|
+| `arc-root-cause-analyzer` | Forensic git analysis | `/arc-rca` | Task tool or `/arc-rca` command |
+| `arc-deep-research` | Four-step research (prioritizes correctness) | Direct invocation | Task tool only |
 
 ### Utility Agents (Internal)
 
-| Agent | Role | Used By | Status |
-|-------|------|---------|--------|
-| `ca-brainstormer` | Generate theories | `/arc-investigate` | ✅ Built |
-| `ca-problem-theory-validator` | Validate single theory | `/arc-investigate` (×5-6 parallel) | ✅ Built |
-| `ca-store-problem-context` | Extract problem context | `/arc-investigate`, `/arc-llm` | ✅ Built |
+| Agent | Role | Used By |
+|-------|------|---------|
+| `ca-brainstormer` | Generate theories | `/arc-investigate` |
+| `ca-problem-theory-validator` | Validate single theory | `/arc-investigate` (×5-6 parallel) |
+| `ca-store-problem-context` | Extract problem context | `/arc-investigate`, `/arc-llm` |
 
 ## Installation
 
