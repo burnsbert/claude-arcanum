@@ -172,31 +172,40 @@ Review all feedback from Pass 1 and identify items that need vetting. Items shou
 - Missing required tests (factual, not subjective)
 - Obvious breaking changes
 
-### Step 2.2: Run Validation for Each Item
+### Step 2.2: Run Batch Validation
 
-For each feedback item identified in Step 2.1, invoke the ca-code-review-validator agent:
+Compile all feedback items identified in Step 2.1 into a single list and invoke the ca-code-review-validator agent **once**:
 
-**Use the Task tool** for each item:
+**Use the Task tool with the complete list**:
 
 ```
-Review the following code review feedback:
+Review the following list of code review feedback items and validate them:
 
-File: [file:line from feedback]
-Feedback: "[Complete feedback text including problem and suggestion]"
+**Item 1**
+File: [file:line]
+Category: [Critical/Important/Minor]
+Confidence: [High/Medium/Low]
+Feedback: "[Complete feedback text]"
 
-Context: This is from a PR that [brief description of PR goal]
+**Item 2**
+File: [file:line]
+Category: [Critical/Important/Minor]
+Confidence: [High/Medium/Low]
+Feedback: "[Complete feedback text]"
+
+[... all items needing validation ...]
+
+Context: PR [brief description of PR goal]
 ```
 
-**Run validators in parallel** when possible - if you have 5 items to vet, send one message with 5 Task tool invocations.
+### Step 2.3: Process Batch Validation Results
 
-### Step 2.3: Collect Validation Results
+The ca-code-review-validator will return batch results organized as:
+- **Items to KEEP**: Feedback that should remain (✅ FULLY ENDORSE / ⚠️ ENDORSE WITH CAVEATS)
+- **Items to REMOVE**: False positives, nitpicks, or invalid feedback (❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE)
+- **Items Needing Clarification**: Feedback requiring more context (🤔 DEPENDS/CLARIFY)
 
-For each validated item, the ca-code-review-validator will return:
-- **Verdict**: ✅ FULLY ENDORSE / ⚠️ ENDORSE WITH CAVEATS / ❌ DISAGREE / 🔵 MINOR/NITPICK / 🤔 DEPENDS/CLARIFY / 🎯 OUT OF SCOPE
-- **Reasoning**: Why this verdict was reached
-- **Recommendation**: What to do about it
-
-Collect all validation results before proceeding to Pass 3.
+Extract the verdicts before proceeding to Pass 3.
 
 ---
 
@@ -326,9 +335,9 @@ Focus on these in order of importance:
 ## Important Notes
 
 ### Efficiency Considerations
-- **Parallel validation**: Run multiple ca-code-review-validator agents in parallel
+- **Batch validation**: Single ca-code-review-validator call for all items needing validation
 - **Selective vetting**: Only vet items that need it (skip obvious issues)
-- **Time budget**: Aim to complete full review in reasonable time (validation adds depth, not excessive time)
+- **Time budget**: Validator performs quick sanity checks on most items, deep investigation only when needed
 
 ### Quality Standards
 - **Every feedback item must have file:line references**

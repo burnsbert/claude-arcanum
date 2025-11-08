@@ -126,37 +126,40 @@ Create a list:
 
 ## PASS 2: Validate Complex Feedback
 
-### Step 2.1: Run Validation for Each Item
+### Step 2.1: Run Batch Validation
 
-For each feedback item identified in Step 1.4, invoke ca-code-review-validator agent:
+Compile all feedback items identified in Step 1.4 into a single list and invoke ca-code-review-validator agent **once**:
 
-**Use the Task tool** for each item:
+**Use the Task tool with the complete list**:
 
 ```
-Review the following code review feedback received on my PR:
+Review the following list of code review feedback items I received on my PR and validate them:
 
-File: [file:line from feedback]
+**Item A1**
+File: [file:line]
+Category: [Initial category from Step 1.3]
+Complexity: [Simple/Moderate/Complex from Step 1.3]
 Feedback: "[Complete feedback text]"
 
-Context: I'm the PR author. This is feedback I received. Is this feedback:
-- Correct and should be addressed?
-- Has merit but involves trade-offs?
-- Based on misunderstanding?
-- A nitpick/minor preference?
+**Item A3**
+File: [file:line]
+Category: [Initial category]
+Complexity: [Complexity level]
+Feedback: "[Complete feedback text]"
 
-My PR is attempting to: [brief description of PR goal]
+[... all items needing validation ...]
+
+Context: I'm the PR author trying to understand which feedback to prioritize. My PR is attempting to: [brief description of PR goal]
 ```
 
-**Run validators in parallel** - if you have 5 items to validate, send one message with 5 Task tool invocations.
+### Step 2.2: Process Batch Validation Results
 
-### Step 2.2: Collect Validation Results
+The ca-code-review-validator will return batch results organized as:
+- **Items to KEEP**: Valid feedback to address (✅ FULLY ENDORSE / ⚠️ ENDORSE WITH CAVEATS)
+- **Items to REMOVE**: Invalid feedback or nitpicks (❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE)
+- **Items Needing Clarification**: Unclear feedback (🤔 DEPENDS/CLARIFY)
 
-For each validated item, ca-code-review-validator will return:
-- **Verdict**: ✅ FULLY ENDORSE / ⚠️ ENDORSE WITH CAVEATS / ❌ DISAGREE / 🔵 MINOR/NITPICK / 🤔 DEPENDS/CLARIFY / 🎯 OUT OF SCOPE
-- **Reasoning**: Evidence-based assessment
-- **Recommendation**: What to do about it
-
-Collect all results before proceeding to synthesis.
+Extract the verdicts before proceeding to synthesis.
 
 ---
 
@@ -363,8 +366,9 @@ Before responding:
 
 ### Efficiency Considerations
 - **Selective validation**: Only validate 20-40% of items (complex/uncertain ones)
-- **Parallel validation**: Run all validators in parallel with single message
+- **Batch validation**: Single validator call processes entire list at once
 - **Skip obvious items**: Don't waste time validating typos or clear bugs
+- **Smart triage**: Validator does quick sanity checks on most items, deep investigation only when needed
 
 ### Response Tone
 - **Professional and appreciative**: Thank reviewers for their time
