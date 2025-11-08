@@ -374,6 +374,7 @@ Before responding:
 - **Clear explanations**: When disagreeing, explain why politely
 - **Acknowledge trade-offs**: For partially valid feedback, note what you're choosing and why
 - **Ask questions**: When unclear, ask for clarification rather than assuming
+- **DO NOT give time estimates**: Never estimate how long fixes will take - that's outside the scope of this command
 
 ### Validator Usage
 The ca-code-review-validator provides:
