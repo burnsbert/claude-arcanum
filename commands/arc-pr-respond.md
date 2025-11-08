@@ -357,7 +357,6 @@ Before responding:
 - Key themes (security, testing, performance, style)
 - Major items to address
 - Any feedback that was validated and what validator found
-- Estimated effort to address all feedback
 ```
 
 ---
