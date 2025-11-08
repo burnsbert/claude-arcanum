@@ -26,10 +26,10 @@ Claude Arcanum provides a comprehensive toolkit for debugging, code review, and 
 ### Architecture
 
 ```
-Custom Commands                GitHub API
-────────────────────          ──────────────────
-/arc-pr-review ────────────▶  Pull request analysis + gh CLI
-/arc-pr-respond ───────────▶  Comment generation + gh CLI
+Custom Commands                GitHub API + Agents
+────────────────────          ─────────────────────────
+/arc-pr-review ────────────▶  gh CLI + ca-code-review-validator (parallel)
+/arc-pr-respond ───────────▶  gh CLI + ca-code-review-validator (parallel)
 
 Agent-Powered Commands        Agents (Internal)
 ──────────────────────────    ─────────────────────
@@ -129,6 +129,11 @@ Direct commands that interact with GitHub via the `gh` CLI.
 /arc-pr-review 123
 ```
 
+**Powered by** (in execution order):
+1. GitHub CLI (`gh`) - Fetches PR data
+2. Initial review - Comprehensive code review with checklist
+3. `ca-code-review-validator` (agent × N in parallel) - Validates feedback items
+
 **How It Works** (Three-Pass Methodology):
 
 **Pass 1: Initial Review**
@@ -139,7 +144,7 @@ Direct commands that interact with GitHub via the `gh` CLI.
 
 **Pass 2: Validate Feedback**
 - Identify complex/uncertain/borderline feedback items
-- Run ca-code-review-validator agent on each item in parallel
+- Run `ca-code-review-validator` agent on each item in parallel
 - Get senior developer assessment: ENDORSE / DISAGREE / NITPICK / etc.
 - Collect validation verdicts and reasoning
 
@@ -202,6 +207,11 @@ Direct commands that interact with GitHub via the `gh` CLI.
 /arc-pr-respond 123 brian michael       # Specific reviewers
 ```
 
+**Powered by** (in execution order):
+1. GitHub CLI (`gh`) - Fetches PR feedback
+2. Initial categorization - Parses and categorizes all feedback
+3. `ca-code-review-validator` (agent × N in parallel) - Validates complex items
+
 **How It Works** (Two-Pass Methodology):
 
 **Pass 1: Fetch and Categorize**
@@ -211,7 +221,7 @@ Direct commands that interact with GitHub via the `gh` CLI.
 - Identify items needing validation vs. obvious items
 
 **Pass 2: Validate Complex Items**
-- Run ca-code-review-validator agent on complex/uncertain feedback (subset only)
+- Run `ca-code-review-validator` agent on complex/uncertain feedback (subset only)
 - Get objective assessment of each reviewer's feedback: Valid/Invalid/Nitpick/etc.
 - Understand trade-offs and implications
 - Skip obvious items (typos, clear bugs) to save time
@@ -1035,6 +1045,24 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 
 **Example**: "Use the ca-problem-theory-validator agent to validate theory #2 from `.problem.20250108-143022.md`"
 
+#### ca-code-review-validator
+
+Vets a single piece of code review feedback for correctness, practicality, wisdom, and accuracy. Acts as a senior developer carefully considering the feedback. Returns verdict: FULLY ENDORSE, ENDORSE WITH CAVEATS, DISAGREE, MINOR/NITPICK, DEPENDS/CLARIFY, or OUT OF SCOPE.
+
+**Usage**:
+- Provide the complete review feedback text
+- Specify file:line where feedback applies
+- Provide context about what's being reviewed
+
+**What it does**:
+- Reads actual code at the specified location
+- Verifies feedback claim against implementation
+- Checks codebase patterns and conventions
+- Assesses practicality (effort vs benefit, trade-offs)
+- Returns evidence-based verdict with reasoning
+
+**Example**: Used automatically by `/arc-pr-review` and `/arc-pr-respond` to validate complex or uncertain feedback items.
+
 ## Typical Workflows
 
 ### Workflow 1: Stuck on a Bug
@@ -1091,10 +1119,10 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 
 ### Custom Commands (GitHub Integration)
 
-| Command | When to Use |
-|---------|-------------|
-| `/arc-pr-review [url]` | Three-pass validated PR reviews |
-| `/arc-pr-respond [url]` | Validated feedback analysis with priorities |
+| Command | When to Use | Powered By |
+|---------|-------------|------------|
+| `/arc-pr-review [url]` | Three-pass validated PR reviews | `gh` CLI, `ca-code-review-validator` |
+| `/arc-pr-respond [url]` | Validated feedback analysis with priorities | `gh` CLI, `ca-code-review-validator` |
 
 ### Agent-Powered Commands (Problem-Solving)
 
@@ -1118,6 +1146,7 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 | `ca-store-problem-context` | Extract problem context | `/arc-investigate`, `/arc-llm` |
 | `ca-brainstormer` | Generate theories | `/arc-investigate` |
 | `ca-problem-theory-validator` | Validate single theory | `/arc-investigate` (×5-6 parallel) |
+| `ca-code-review-validator` | Vet code review feedback | `/arc-pr-review`, `/arc-pr-respond` (parallel) |
 
 ## Installation
 
