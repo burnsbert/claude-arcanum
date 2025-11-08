@@ -4,18 +4,33 @@ A collection of powerful custom commands and agents for Claude Code that enhance
 
 ## Overview
 
-Claude Arcanum provides a systematic approach to debugging and understanding code problems:
+Claude Arcanum provides a comprehensive toolkit for debugging, code review, and problem-solving in Claude Code.
 
-- **arc-investigate** - Automated troubleshooting: generates and validates theories about bugs
-- **arc-rca** - Root cause analysis: traces bugs to their origin through git history
-- **arc-llm** - External consultation: generates prompts for other LLMs
+### V1 Features
+
+**Custom Commands** (Direct GitHub integration)
+- **arc-pr-review** - Perform code reviews on GitHub pull requests 🚧 *Planned*
+- **arc-pr-respond** - Assist in responding to code review comments 🚧 *Planned*
+
+**Agent-Powered Commands** (Intelligent problem-solving)
+- **arc-investigate** - Automated troubleshooting with theory validation ✅ *Built*
+- **arc-llm** - Generate prompts for external LLM consultation ✅ *Built*
+- **arc-rca** - Root cause analysis with git forensics ✅ *Built*
+
+**Agents** (Specialized intelligence engines)
+- **arc-root-cause-analyzer** - Forensic bug analysis ✅ *Built*
+- **arc-researcher** - Two-pass investigative research (prioritizes correctness) 🚧 *Planned*
 
 ### Architecture
 
 ```
-User Commands (arc-*)          Agents (Internal)
-─────────────────────         ─────────────────────
+Custom Commands                GitHub API
+────────────────────          ──────────────────
+/arc-pr-review ────────────▶  Pull request analysis + gh CLI
+/arc-pr-respond ───────────▶  Comment generation + gh CLI
 
+Agent-Powered Commands        Agents (Internal)
+──────────────────────────    ─────────────────────
 /arc-investigate ──────────▶  ca-brainstormer
                  │            ca-problem-theory-validator (×5-6 parallel)
                  │
@@ -25,13 +40,21 @@ User Commands (arc-*)          Agents (Internal)
 
 /arc-llm ──────────────────▶  ca-store-problem-context (utility)
                               + direct file reading
+
+User-Invokable Agents         Use Cases
+─────────────────────────     ───────────────────
+arc-root-cause-analyzer  ──▶  Forensic bug analysis
+arc-researcher ─────────────▶ Deep research (two-pass methodology)
 ```
 
-These tools work together to help you:
-- Solve problems faster with evidence-based analysis
-- Understand how bugs were introduced and how to prevent them
-- Get help from other LLMs when needed
-- Learn from mistakes systematically
+### What This Toolkit Provides
+
+- **Faster debugging** - Evidence-based problem analysis and theory validation
+- **Better code reviews** - Systematic PR review with comprehensive checklists
+- **Root cause understanding** - Git forensics to trace bugs to their origin
+- **Prevention insights** - Learn from mistakes to prevent future issues
+- **External help** - Generate prompts for consulting other LLMs
+- **Deep research** - Two-pass investigative methodology for complex questions
 
 ## Quick Start
 
@@ -53,6 +76,18 @@ Understand how it was introduced and how to prevent similar issues.
 ```
 Generate a comprehensive prompt for ChatGPT, Gemini, or other LLMs.
 
+**Reviewing a pull request?** 🚧 *Coming Soon*
+```
+/arc-pr-review https://github.com/owner/repo/pull/123
+```
+Get a comprehensive code review with detailed analysis.
+
+**Responding to PR feedback?** 🚧 *Coming Soon*
+```
+/arc-pr-respond https://github.com/owner/repo/pull/123
+```
+Craft thoughtful responses to code review comments.
+
 ## Structure
 
 ```
@@ -72,9 +107,68 @@ claude-arcanum/
 
 ## Commands
 
-### User Commands (arc-*)
+Commands are organized into two categories: direct GitHub integration commands and agent-powered problem-solving commands.
 
-These are your main entry points - designed for direct use when working on problems.
+---
+
+### Custom Commands (GitHub Integration)
+
+Direct commands that interact with GitHub via the `gh` CLI.
+
+#### `/arc-pr-review` - Pull Request Code Review 🚧 *Planned*
+
+**Purpose**: Perform comprehensive code review on GitHub pull requests with systematic analysis.
+
+**Usage**:
+```bash
+/arc-pr-review https://github.com/owner/repo/pull/123
+```
+
+**What it will do**:
+- Fetch PR details using `gh` CLI
+- Analyze changed files and diffs
+- Review code for common issues, bugs, and improvements
+- Check for test coverage
+- Verify documentation updates
+- Generate structured review with categorized feedback
+
+**When to use**:
+- Before approving a pull request
+- When conducting thorough code reviews
+- To ensure consistent review quality across the team
+
+**Status**: Planned for v1 - not yet implemented
+
+---
+
+#### `/arc-pr-respond` - PR Review Response Assistant 🚧 *Planned*
+
+**Purpose**: Assist in crafting thoughtful, professional responses to code review comments on your pull requests.
+
+**Usage**:
+```bash
+/arc-pr-respond https://github.com/owner/repo/pull/123
+```
+
+**What it will do**:
+- Fetch PR and review comments using `gh` CLI
+- Analyze feedback and understand context
+- Help draft responses to reviewer comments
+- Suggest code changes to address feedback
+- Generate commit messages for review-driven changes
+
+**When to use**:
+- Responding to code review feedback
+- Addressing reviewer concerns systematically
+- Ensuring professional communication in reviews
+
+**Status**: Planned for v1 - not yet implemented
+
+---
+
+### Agent-Powered Commands (Problem-Solving)
+
+Intelligent commands that use specialized agents for deep analysis. These are your main entry points for debugging and problem-solving.
 
 ---
 
@@ -628,6 +722,114 @@ const cacheKey = `${userId}_${resource}`; // Removed timestamp!
 
 ---
 
+#### `arc-researcher` - Two-Pass Research Agent 🚧 *Planned*
+
+**Purpose**: Deep investigative research using a two-pass methodology that prioritizes correctness over speed. Ideal for complex technical questions that require thorough investigation.
+
+**This is a standalone research agent** - Unlike arc-root-cause-analyzer which is primarily called by `/arc-rca`, this agent is designed for direct invocation when you need comprehensive research.
+
+**Two-Pass Methodology**:
+
+**Pass 1 - Broad Discovery**:
+- Casts a wide net across the codebase, documentation, and related resources
+- Identifies all potentially relevant information
+- Maps out the landscape of the problem space
+- Generates initial hypotheses and areas to investigate
+
+**Pass 2 - Rigorous Verification**:
+- Deeply investigates the most promising leads from Pass 1
+- Verifies claims against actual code and documentation
+- Tests hypotheses through systematic examination
+- Eliminates false positives and incorrect assumptions
+- Synthesizes findings into accurate, comprehensive answer
+
+**Usage** (via Task tool):
+```
+Use the arc-researcher agent to investigate:
+
+Question: How does the authentication flow work from login to token validation?
+
+Context: Working on bug related to session timeout, need to understand
+complete auth flow including middleware, validation, and token refresh.
+```
+
+**What You Get**:
+
+**1. Discovery Summary**
+- All relevant files, functions, and components identified
+- Related documentation and comments found
+- Initial hypotheses about the answer
+
+**2. Verification Results**
+- Each hypothesis tested and verified/rejected
+- Code evidence for confirmed findings
+- Corrections to initial assumptions
+
+**3. Comprehensive Answer**
+- Accurate, detailed explanation backed by code
+- File and line references for every claim
+- Flow diagrams or step-by-step breakdowns where helpful
+- Related considerations and edge cases
+
+**4. Confidence Assessment**
+- What is definitively confirmed
+- What remains uncertain or ambiguous
+- Recommendations for further investigation if needed
+
+**Example Direct Invocation**:
+```
+You: I need to understand how the caching layer works with Redis
+
+Claude: [Uses Task tool to invoke arc-researcher]
+
+Agent produces:
+
+# Research Report: Redis Caching Layer
+
+## Discovery Phase
+Found 3 primary files implementing caching:
+- src/cache/redisClient.ts - Connection and client management
+- src/cache/cacheService.ts - High-level caching API
+- src/middleware/cacheMiddleware.ts - Express middleware
+
+Initial hypothesis: Two-tier caching (memory + Redis)
+
+## Verification Phase
+Confirmed: Two-tier architecture with L1 (in-memory) and L2 (Redis)
+- L1 cache: src/cache/memoryCache.ts:15-89
+- TTL: 60 seconds for L1, 3600 seconds for L2
+- Invalidation: Pub/sub pattern using Redis channels
+
+Rejected: Initial assumption about cache-aside pattern
+- Actually uses write-through for critical data
+- Cache-aside only for read-heavy endpoints
+
+## Complete Flow
+[Detailed explanation with file:line references...]
+
+## Confidence Assessment
+✅ Confirmed: Architecture, TTL values, invalidation strategy
+⚠️ Uncertain: Behavior during Redis outage (no explicit fallback code found)
+📋 Recommend: Review disaster recovery documentation
+```
+
+**When to Use Directly**:
+- Complex technical questions requiring thorough research
+- Understanding unfamiliar codebases or architectural patterns
+- Investigating intricate data flows across multiple systems
+- When you need high-confidence, verified answers (not quick guesses)
+- Debugging issues that require deep system understanding
+- Planning major refactors or architectural changes
+
+**Prioritizes Correctness Over Speed**:
+- Takes longer than simple searches (2-pass methodology)
+- Worth the time when accuracy is critical
+- Reduces the risk of pursuing wrong approaches based on incorrect assumptions
+
+**Status**: Planned for v1 - not yet implemented
+
+---
+
 ### Utility Agents (ca-*)
 
 #### ca-brainstormer
@@ -719,21 +921,35 @@ Rigorously vets a single theory about a problem's cause through systematic inves
 
 ## Quick Reference
 
-### Commands
+### Custom Commands (GitHub Integration)
 
-| Command | When to Use | Powered By | Output |
-|---------|-------------|------------|--------|
-| `/arc-investigate` | Stuck on bug, need systematic analysis | `ca-brainstormer`, `ca-problem-theory-validator` (agents) | Ranked theories with evidence |
-| `/arc-rca` | Just fixed bug, want to understand origin | `arc-root-cause-analyzer` (agent) | Root cause report with prevention tips |
-| `/arc-llm` | Need second opinion from external LLM | `ca-store-problem-context` (command) + file reading | Copy-pasteable prompt with all context |
+| Command | When to Use | Status |
+|---------|-------------|--------|
+| `/arc-pr-review [url]` | Review pull requests systematically | 🚧 Planned |
+| `/arc-pr-respond [url]` | Respond to PR review feedback | 🚧 Planned |
 
-### Agents
+### Agent-Powered Commands (Problem-Solving)
 
-| Agent | Role | Used By | Invoke Via |
-|-------|------|---------|-----------|
-| `arc-root-cause-analyzer` | Forensic git analysis | `/arc-rca` | Task tool or `/arc-rca` command |
-| `ca-brainstormer` | Generate theories | `/arc-investigate` | `/arc-investigate` command |
-| `ca-problem-theory-validator` | Validate single theory | `/arc-investigate` | `/arc-investigate` command (spawns multiple in parallel) |
+| Command | When to Use | Powered By | Output | Status |
+|---------|-------------|------------|--------|--------|
+| `/arc-investigate` | Stuck on bug, need systematic analysis | `ca-brainstormer`, `ca-problem-theory-validator` (agents) | Ranked theories with evidence | ✅ Built |
+| `/arc-rca` | Just fixed bug, want to understand origin | `arc-root-cause-analyzer` (agent) | Root cause report with prevention tips | ✅ Built |
+| `/arc-llm` | Need second opinion from external LLM | `ca-store-problem-context` (command) + file reading | Copy-pasteable prompt with all context | ✅ Built |
+
+### User Agents
+
+| Agent | Role | Used By | Invoke Via | Status |
+|-------|------|---------|-----------|--------|
+| `arc-root-cause-analyzer` | Forensic git analysis | `/arc-rca` | Task tool or `/arc-rca` command | ✅ Built |
+| `arc-researcher` | Two-pass research (prioritizes correctness) | Direct invocation | Task tool only | 🚧 Planned |
+
+### Utility Agents (Internal)
+
+| Agent | Role | Used By | Status |
+|-------|------|---------|--------|
+| `ca-brainstormer` | Generate theories | `/arc-investigate` | ✅ Built |
+| `ca-problem-theory-validator` | Validate single theory | `/arc-investigate` (×5-6 parallel) | ✅ Built |
+| `ca-store-problem-context` | Extract problem context | `/arc-investigate`, `/arc-llm` | ✅ Built |
 
 ## Installation
 
