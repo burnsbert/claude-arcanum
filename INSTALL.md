@@ -93,19 +93,17 @@ You can also install via the Claude Code plugin interface:
 
 ```bash
 # Check if installed
-/plugin list
+/plugin
+# Then select: 5. View installation status
 
-# Disable without uninstalling
-/plugin disable arcanum
+# To manage plugins
+/plugin
+# Then select: 2. Manage and uninstall plugins
 
-# Re-enable
-/plugin enable arcanum
-
-# Uninstall
-/plugin uninstall arcanum
-
-# Update to latest version
-/plugin update arcanum
+# From there you can:
+# - Disable/enable plugins
+# - Uninstall plugins
+# - Update to latest versions
 ```
 
 Done! All commands and agents are now available in any Claude Code session.
