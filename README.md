@@ -1,6 +1,6 @@
 # Claude Arcanum
 
-I've been writing some articles and a lot of training docs lately for Claude Code, but I've decided to apply my talents to and open source library. This will serve as both a practical resource and as a model implementation for what's possible in Claude Code. You'll also notice that this is implemented as a plugin for easy installation, which is an underappreciated recently added feature to Claude Code.
+I've been writing some articles and a lot of training docs lately for Claude Code, but I've decided to apply my talents to an open source library. This will serve as both a practical resource and as a model implementation for what's possible in Claude Code. You'll also notice that this is implemented as a plugin for easy installation, which is an underappreciated recently added feature to Claude Code.
 
 This library contains a powerful core of functionality to supercharge your Claude Code experience. I've figured out some very effective ways to create very powerful workflows by integrating custom commands with agents, sometimes multiple agents, hyperspecialized for different tasks.
 
