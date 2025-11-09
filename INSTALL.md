@@ -58,7 +58,7 @@ gh auth login
 
 The easiest way to install Claude Arcanum is as a Claude Code plugin.
 
-### From GitHub (Once Repository is Public)
+### From GitHub
 
 ```bash
 /plugin install burnsbert/claude-arcanum
