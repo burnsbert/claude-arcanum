@@ -61,7 +61,11 @@ The easiest way to install Claude Arcanum is as a Claude Code plugin.
 ### From GitHub
 
 ```bash
-/plugin install burnsbert/claude-arcanum
+# Step 1: Add the marketplace
+/plugin marketplace add burnsbert/claude-arcanum
+
+# Step 2: Install the plugin
+/plugin install arcanum
 ```
 
 ### Local Installation (For Development/Testing)
@@ -81,9 +85,9 @@ If you've cloned the repository locally:
 You can also install via the Claude Code plugin interface:
 
 1. Type `/plugin` in Claude Code
-2. Select "Browse Plugins"
-3. Search for "arcanum"
-4. Click "Install"
+2. Select "Add Marketplace"
+3. Enter: `burnsbert/claude-arcanum`
+4. Then browse and install "arcanum"
 
 ### Managing the Plugin
 
