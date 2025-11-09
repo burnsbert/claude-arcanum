@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "arcanum",
-      "source": ".",
+      "source": "./",
       "description": "Advanced debugging and code review workflows with parallel theory validation, root cause analysis, and PR review assistance",
       "version": "1.0.0",
       "keywords": [
