@@ -54,7 +54,65 @@ gh auth login
 
 ---
 
-## Quick Install (Recommended)
+## Plugin Installation (Recommended)
+
+The easiest way to install Claude Arcanum is as a Claude Code plugin.
+
+### From GitHub (Once Repository is Public)
+
+```bash
+/plugin install burnsbert/claude-arcanum
+```
+
+### Local Installation (For Development/Testing)
+
+If you've cloned the repository locally:
+
+```bash
+# From any directory, reference the path to claude-arcanum
+/plugin install /path/to/claude-arcanum
+
+# Or if you're already in the claude-arcanum directory
+/plugin install .
+```
+
+### Using the Plugin UI
+
+You can also install via the Claude Code plugin interface:
+
+1. Type `/plugin` in Claude Code
+2. Select "Browse Plugins"
+3. Search for "arcanum"
+4. Click "Install"
+
+### Managing the Plugin
+
+```bash
+# Check if installed
+/plugin list
+
+# Disable without uninstalling
+/plugin disable arcanum
+
+# Re-enable
+/plugin enable arcanum
+
+# Uninstall
+/plugin uninstall arcanum
+
+# Update to latest version
+/plugin update arcanum
+```
+
+Done! All commands and agents are now available in any Claude Code session.
+
+---
+
+## Manual Installation (Alternative Method)
+
+If you prefer manual installation or want to install selectively:
+
+### Quick Manual Install
 
 Copy all commands and agents to your global Claude Code configuration:
 
@@ -66,13 +124,11 @@ cp agents/*.md ~/.claude/agents/
 
 Done! All commands and agents are now available in any Claude Code session.
 
----
+### Selective Installation
 
-## Manual Installation (Step by Step)
+If you want to install specific components:
 
-If you prefer to install selectively or understand what's being installed:
-
-### Step 1: Install Commands
+#### Step 1: Install Commands
 
 Commands are invoked with `/command-name` in Claude Code.
 
@@ -97,7 +153,7 @@ cp commands/arc-investigate.md ~/.claude/commands/
 cp commands/arc-rca.md ~/.claude/commands/
 ```
 
-### Step 2: Install Agents
+#### Step 2: Install Agents
 
 Agents are invoked via the Task tool and provide specialized intelligence.
 

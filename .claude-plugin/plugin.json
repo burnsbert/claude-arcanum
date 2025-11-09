@@ -1,0 +1,22 @@
+{
+  "name": "arcanum",
+  "version": "1.0.0",
+  "description": "Advanced debugging and code review workflows with parallel theory validation, root cause analysis, and PR review assistance",
+  "author": {
+    "name": "Eric Burns",
+    "url": "https://github.com/burnsbert"
+  },
+  "homepage": "https://github.com/burnsbert/claude-arcanum",
+  "repository": "https://github.com/burnsbert/claude-arcanum",
+  "license": "MIT",
+  "keywords": [
+    "debugging",
+    "troubleshooting",
+    "code-review",
+    "root-cause-analysis",
+    "investigation",
+    "pr-review",
+    "agents",
+    "parallel-validation"
+  ]
+}
