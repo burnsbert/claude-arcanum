@@ -18,19 +18,19 @@ This is a top-level orchestration command that runs a complete troubleshooting w
    - If multiple exist, ask which one to use
    - If none exist, invoke `/ca-store-problem-context` to create one
 
-2. **Confirm the problem context** with the user:
+2. **Show the problem context** to the user and proceed automatically:
    ```
    Using problem context: .problem.[timestamp].md
 
    Problem: [Brief summary from the file]
 
-   Ready to investigate? This will:
-   - Generate 5-6 theories about the cause
-   - Validate each theory through code investigation
-   - Provide ranked next steps
-
-   Proceed? (yes/no)
+   Investigating now:
+   - Generating 5-6 theories about the cause
+   - Validating each theory through code investigation
+   - Will provide ranked next steps
    ```
+
+   **DO NOT pause for confirmation** - proceed immediately to Phase 2.
 
 ### Phase 2: Generate Theories
 
@@ -230,16 +230,12 @@ Created: .problem.20250108-103045.md
 
 Problem: React component not re-rendering when state changes
 
-Ready to investigate? This will:
-- Generate 5-6 theories about the cause
-- Validate each theory through code investigation
-- Provide ranked next steps
+Investigating now:
+- Generating 5-6 theories about the cause
+- Validating each theory through code investigation
+- Will provide ranked next steps
 
-Proceed?
-
-User: yes
-
-Claude: Generating theories...
+Generating theories...
 
 Generated 5 theories:
 1. Missing key prop in list rendering (Likelihood: High)
