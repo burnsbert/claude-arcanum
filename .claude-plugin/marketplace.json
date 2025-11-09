@@ -9,7 +9,7 @@
       "name": "arcanum",
       "source": "./",
       "description": "Advanced debugging and code review workflows with parallel theory validation, root cause analysis, and PR review assistance",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "keywords": [
         "debugging",
         "troubleshooting",
