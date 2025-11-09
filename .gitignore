@@ -1,6 +1,9 @@
 # Working files - dot-prefixed markdown files in project root
 /.*.md
 
+# Project-specific Claude instructions (keep local only)
+/CLAUDE.md
+
 # Common OS files
 .DS_Store
 .DS_Store?
