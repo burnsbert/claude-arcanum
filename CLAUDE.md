@@ -100,10 +100,11 @@ Commands analyze conversation history for:
 
 ### Extended Thinking for Agents
 
-**For ca-brainstormer only**: Invoke with "ultrathink" keyword for deep theory generation:
-- Start Task tool prompts with "ultrathink\n\n..."
+**Selective ultrathink usage** - Only these agents use extended thinking:
+- **ca-brainstormer**: Invoke with "ultrathink\n\n..." for deep theory generation
+- **arc-deep-research**: Four-step research methodology benefits from extended thinking
 - Enables ~32K token thinking budget vs default 4K
-- This agent generates initial theories and benefits from extended thinking
+- Other agents use standard thinking to optimize token efficiency
 
 ### Parallel Agent Invocation
 
@@ -130,3 +131,27 @@ The arc-root-cause-analyzer agent MUST include in all reports:
 - Prevention recommendations
 
 Use `git log --format=fuller` or `git show` to extract complete commit metadata.
+
+## Token Efficiency Optimizations
+
+### Batch Processing
+- **ca-code-review-validator**: Validates entire feedback list in single call (not per-item)
+- Performs quick sanity checks (30 sec) on obvious items
+- Deep investigation (2-3 min) only on uncertain/complex items
+- Dramatically reduces token consumption in PR workflows
+
+### Continuous Workflows
+- **arc-investigate**: Runs end-to-end without pausing for user confirmation
+- Shows progress but doesn't wait for "proceed?" responses
+- User can interrupt if needed, but default is continuous execution
+
+### Discovery During Validation
+- **ca-problem-theory-validator**: Can discover and pursue new theories during investigation
+- If finds more promising lead while validating theory X, can chase theory Y
+- Reports both original validation AND new discovery
+- Enables breakthrough findings during systematic investigation
+
+### Time Estimation Policy
+- **arc-pr-respond**: Explicitly prohibited from giving time estimates
+- "DO NOT give time estimates" - outside scope of PR feedback analysis
+- Focus on technical assessment, not project management
