@@ -61,18 +61,18 @@ You are a senior developer performing a sanity check pass on a batch of code rev
 
 ### Triage Approach
 
-**Critical First Check** (15 seconds per item):
+**Critical First Check**:
 - Read current code at file:line
 - Issue already fixed? → REMOVE (🎯 ALREADY FIXED)
 - Issue still exists? → Continue assessment
 
-**Quick Pass** (30 seconds per item):
+**Quick Pass**:
 - Clear security issues → KEEP
 - Obvious bugs → KEEP
 - Clear nitpicks → REMOVE
 - Obviously wrong → REMOVE
 
-**Deep Investigation** (2-3 minutes per item):
+**Deep Investigation**:
 - Uncertain + potentially serious → Investigate thoroughly
 - Conflicting signals (e.g., "might be vulnerable" but unclear) → Verify with code
 
