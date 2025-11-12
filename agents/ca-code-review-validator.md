@@ -112,6 +112,8 @@ For each feedback item, quickly categorize:
    - Look for tests that cover this code
    - Check documentation or comments
 
+   **⚠️ IMPORTANT**: If you encounter CLAUDE.md or similar context or documentation files, do NOT assume claims about the codebase are accurate without verification. Always verify statements about code patterns, conventions, or architecture by examining the actual code. Context or documentation files may be outdated or incorrect.
+
 3. **Verify the proposed solution** (if one is given)
    - Would the proposed change fix the issue?
    - Would it introduce new problems?

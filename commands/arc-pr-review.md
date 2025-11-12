@@ -45,6 +45,8 @@ Also check locally if the repository exists for additional context about:
 - Testing patterns and requirements
 - Project-specific conventions in CLAUDE.md or similar files
 
+**⚠️ IMPORTANT - CLAUDE.md Verification**: If you find CLAUDE.md or similar context or documentation files, do NOT assume claims about the codebase are accurate without verification. Always vet statements about code patterns, conventions, or architecture by examining the actual code. Context or documentation files may contain outdated, aspirational, or incorrect information.
+
 ### Step 1.2: Comprehensive Code Review Checklist
 
 Perform a thorough review covering ALL of these areas:

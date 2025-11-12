@@ -363,6 +363,9 @@ Before responding:
 
 ## Important Notes
 
+### CLAUDE.md Verification
+**⚠️ CRITICAL**: If you reference CLAUDE.md or similar context or documentation files during analysis, do NOT assume claims about the codebase are accurate without verification. Always vet statements about code patterns, conventions, or architecture by examining the actual code. Context or documentation files may contain outdated, aspirational, or incorrect information that could lead to incorrect feedback validation.
+
 ### Efficiency Considerations
 - **Selective validation**: Only validate 20-40% of items (complex/uncertain ones)
 - **Batch validation**: Single validator call processes entire list at once
