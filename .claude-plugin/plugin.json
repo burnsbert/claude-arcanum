@@ -1,6 +1,6 @@
 {
   "name": "arcanum",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Advanced debugging and code review workflows with parallel theory validation, root cause analysis, and PR review assistance",
   "author": {
     "name": "Eric Burns",
