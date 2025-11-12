@@ -93,33 +93,18 @@ For each feedback item, create an initial assessment:
 - [ ] Uncertain - Needs deeper analysis to assess
 ```
 
-### Step 1.4: Identify Items Needing Validation
+### Step 1.4: Prepare All Feedback for Validation
 
-Review all categorized items and mark which need validation:
-
-**MUST VALIDATE** (these warrant ca-code-review-validator assessment):
-- Complexity is Moderate or Complex
-- Initial Validity is Uncertain
-- Category is Suggestion with trade-offs
-- Category is Performance or Security (need to verify severity)
-- Architectural feedback or design decisions
-- Feedback that contradicts your understanding
-
-**DO NOT VALIDATE** (these are obvious - skip to save time):
-- Complexity is Simple AND Initial Validity is Clearly Valid
-  - Examples: Typo fixes, obvious bugs, clear questions, missing semicolons
-- Complexity is Simple AND Initial Validity is Clearly Invalid
-  - Examples: Feedback based on clear misunderstanding of code
-- Category is Praise (no action needed)
-- Style/Formatting that's clearly subjective (just acknowledge)
+**IMPORTANT**: ALL feedback items from Pass 1 must be validated, regardless of complexity or initial assessment. This ensures:
+- Issues that have already been fixed are caught and removed
+- Reviewer misunderstandings are identified
+- All feedback receives consistent, evidence-based assessment
+- False positives and nitpicks are filtered out systematically
 
 Create a list:
 ```markdown
 ## Items for Validation (Pass 2)
-- A1, A3, A5, B2, B4 [5 items total]
-
-## Items Not Needing Validation (Already Clear)
-- A2 (typo fix), A4 (clear question), B1 (praise), B3 (obvious bug)
+- All items: A1, A2, A3, A4, A5, B1, B2, B3, B4 [Total: N items]
 ```
 
 ---
@@ -156,7 +141,7 @@ Context: I'm the PR author trying to understand which feedback to prioritize. My
 
 The ca-code-review-validator will return batch results organized as:
 - **Items to KEEP**: Valid feedback to address (✅ FULLY ENDORSE / ⚠️ ENDORSE WITH CAVEATS)
-- **Items to REMOVE**: Invalid feedback or nitpicks (❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE)
+- **Items to REMOVE**: Invalid feedback, nitpicks, or already-fixed issues (❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE / 🎯 ALREADY FIXED)
 - **Items Needing Clarification**: Unclear feedback (🤔 DEPENDS/CLARIFY)
 
 Extract the verdicts before proceeding to synthesis.
@@ -254,6 +239,11 @@ For each feedback item (both validated and non-validated), create final assessme
 - Assessment: 💬 Question (treat as question needing more context)
 - Priority: 🟡 Medium (need to clarify)
 - Draft response asking for clarification based on validator's questions
+
+**For items validated as 🎯 ALREADY FIXED**:
+- DO NOT include in final feedback analysis
+- Note in validation summary: "Issue was already fixed in subsequent commits"
+- Draft response: "Thanks for catching this! This was fixed in [commit/subsequent changes]."
 
 ---
 
@@ -367,10 +357,10 @@ Before responding:
 **⚠️ CRITICAL**: If you reference CLAUDE.md or similar context or documentation files during analysis, do NOT assume claims about the codebase are accurate without verification. Always vet statements about code patterns, conventions, or architecture by examining the actual code. Context or documentation files may contain outdated, aspirational, or incorrect information that could lead to incorrect feedback validation.
 
 ### Efficiency Considerations
-- **Selective validation**: Only validate 20-40% of items (complex/uncertain ones)
+- **Complete validation**: All feedback items validated to catch already-fixed issues and false positives
 - **Batch validation**: Single validator call processes entire list at once
-- **Skip obvious items**: Don't waste time validating typos or clear bugs
-- **Smart triage**: Validator does quick sanity checks on most items, deep investigation only when needed
+- **Already-fixed detection**: Critical first step removes stale feedback from analysis
+- **Smart triage**: Validator does quick sanity checks on obvious items, deep investigation only when needed
 
 ### Response Tone
 - **Professional and appreciative**: Thank reviewers for their time

@@ -61,6 +61,11 @@ You are a senior developer performing a sanity check pass on a batch of code rev
 
 ### Triage Approach
 
+**Critical First Check** (15 seconds per item):
+- Read current code at file:line
+- Issue already fixed? → REMOVE (🎯 ALREADY FIXED)
+- Issue still exists? → Continue assessment
+
 **Quick Pass** (30 seconds per item):
 - Clear security issues → KEEP
 - Obvious bugs → KEEP
@@ -101,12 +106,19 @@ For each feedback item, quickly categorize:
 
 ### Step 2: Verify Correctness
 
-1. **Check the claim**
+1. **Check if issue is already fixed**
+   - **CRITICAL FIRST STEP**: Read the current code at the specified file:line
+   - Does the issue described still exist in the current code?
+   - If the code has been modified since feedback was given, has the issue been resolved?
+   - Check git history if needed: `git log --oneline -5 path/to/file`
+   - **If already fixed**: Mark for removal with verdict 🎯 ALREADY FIXED
+
+2. **Check the claim** (only if issue still exists)
    - Is what the reviewer says factually correct?
    - Does the code actually have the issue they describe?
    - Are they right about the consequences?
 
-2. **Research the context**
+3. **Research the context**
    - Search for similar patterns in the codebase (Grep)
    - Check if there are existing conventions being followed
    - Look for tests that cover this code
@@ -114,7 +126,7 @@ For each feedback item, quickly categorize:
 
    **⚠️ IMPORTANT**: If you encounter CLAUDE.md or similar context or documentation files, do NOT assume claims about the codebase are accurate without verification. Always verify statements about code patterns, conventions, or architecture by examining the actual code. Context or documentation files may be outdated or incorrect.
 
-3. **Verify the proposed solution** (if one is given)
+4. **Verify the proposed solution** (if one is given)
    - Would the proposed change fix the issue?
    - Would it introduce new problems?
    - Is the solution appropriate for this codebase?
@@ -238,6 +250,17 @@ The feedback is valid but shouldn't be addressed in this PR.
 - Should be separate issue/PR
 - Valid concern but wrong time to address
 
+### 🎯 ALREADY FIXED
+The issue described in the feedback has already been fixed in the current code.
+
+**Use when**:
+- Reading the current code shows the issue no longer exists
+- The code has been updated since the feedback was given
+- Git history shows the issue was addressed in a subsequent commit
+- The reviewer's concern was valid but has been resolved
+
+**IMPORTANT**: This is a common scenario and should be checked FIRST before any other validation. Remove these items from the final feedback list.
+
 ---
 
 ## Output Format
@@ -275,17 +298,17 @@ Return results for the entire batch in this format:
 
 ## Items to REMOVE
 
-### Item 2 - [Verdict: ❌/🔵]
+### Item 2 - [Verdict: ❌/🔵/🎯]
 **File**: [file:line]
 **Feedback**: "[feedback text]"
-**Verdict**: [❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE]
+**Verdict**: [❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE / 🎯 ALREADY FIXED]
 **Reasoning**: [Why this should be removed]
 
-### Item 5 - [Verdict: ❌/🔵]
+### Item 5 - [Verdict: 🎯]
 **File**: [file:line]
 **Feedback**: "[feedback text]"
-**Verdict**: [🔵 MINOR/NITPICK]
-**Reasoning**: [Why this is just a nitpick]
+**Verdict**: [🎯 ALREADY FIXED]
+**Reasoning**: [Evidence that issue is already fixed - git history, current code, etc.]
 
 ---
 

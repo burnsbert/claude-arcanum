@@ -155,28 +155,19 @@ Structure initial feedback as a list with categories:
 
 ## PASS 2: Vet Feedback Items
 
-### Step 2.1: Identify Items Needing Validation
+### Step 2.1: Prepare All Feedback for Validation
 
-Review all feedback from Pass 1 and identify items that need vetting. Items should be vetted if they meet ANY of these criteria:
+**IMPORTANT**: ALL feedback items from Pass 1 must be validated, regardless of confidence level or category. This ensures:
+- Issues that appear fixed are caught and removed
+- High-confidence items are double-checked
+- Context is verified for all feedback
+- Consistency across all assessments
 
-**MUST VET**:
-- Confidence level is Medium or Low
-- Involves subjective judgment or trade-offs
-- Style/convention feedback (could be nitpick)
-- Performance suggestions (need to verify impact)
-- Architectural recommendations (need wisdom check)
-- Items in "Important Concerns" or "Minor Suggestions" categories
-
-**DO NOT VET** (skip these to save time):
-- Confidence level is High AND in "Critical Issues"
-- Obvious security vulnerabilities
-- Clear bugs (null pointer, undefined variable, etc.)
-- Missing required tests (factual, not subjective)
-- Obvious breaking changes
+Compile the complete list of all feedback items from Pass 1 for validation.
 
 ### Step 2.2: Run Batch Validation
 
-Compile all feedback items identified in Step 2.1 into a single list and invoke the ca-code-review-validator agent **once**:
+Compile ALL feedback items from Pass 1 into a single list and invoke the ca-code-review-validator agent **once**:
 
 **Use the Task tool with the complete list**:
 
@@ -204,7 +195,7 @@ Context: PR [brief description of PR goal]
 
 The ca-code-review-validator will return batch results organized as:
 - **Items to KEEP**: Feedback that should remain (✅ FULLY ENDORSE / ⚠️ ENDORSE WITH CAVEATS)
-- **Items to REMOVE**: False positives, nitpicks, or invalid feedback (❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE)
+- **Items to REMOVE**: False positives, nitpicks, invalid feedback, or already-fixed issues (❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE / 🎯 ALREADY FIXED)
 - **Items Needing Clarification**: Feedback requiring more context (🤔 DEPENDS/CLARIFY)
 
 Extract the verdicts before proceeding to Pass 3.
@@ -245,6 +236,11 @@ For each feedback item:
 **If vetted and verdict is 🎯 OUT OF SCOPE**:
 - REMOVE from PR feedback
 - Optionally suggest creating separate issue/PR
+
+**If vetted and verdict is 🎯 ALREADY FIXED**:
+- REMOVE from PR feedback
+- Note in validation summary: "Issue was already fixed in subsequent commits"
+- Do NOT include in final review
 
 ### Step 3.2: Final Review Output Format
 
@@ -337,9 +333,10 @@ Focus on these in order of importance:
 ## Important Notes
 
 ### Efficiency Considerations
-- **Batch validation**: Single ca-code-review-validator call for all items needing validation
-- **Selective vetting**: Only vet items that need it (skip obvious issues)
-- **Time budget**: Validator performs quick sanity checks on most items, deep investigation only when needed
+- **Batch validation**: Single ca-code-review-validator call for ALL feedback items
+- **Complete vetting**: All items validated to catch already-fixed issues and false positives
+- **Time budget**: Validator performs quick sanity checks on obvious items, deep investigation only when needed
+- **Already-fixed detection**: Critical first step removes stale feedback from final review
 
 ### Quality Standards
 - **Every feedback item must have file:line references**
