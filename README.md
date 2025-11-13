@@ -84,6 +84,13 @@ Need a code review sidekick? Run this to get a comprehensive three-pass validate
 ```
 Get validated analysis and prioritized response plan. Claude Code's context will be up to speed and ready to fix those nitpicks (and larger issues).
 
+**Need technical documentation?**
+```
+Use the arc-technical-writer agent to create comprehensive API documentation
+for the user authentication endpoints with examples and error codes.
+```
+Elite technical writer that researches codebases and creates verified documentation.
+
 ## Structure
 
 ```
@@ -92,11 +99,16 @@ claude-arcanum/
 │   ├── arc-investigate.md
 │   ├── arc-rca.md
 │   ├── arc-llm.md
+│   ├── arc-pr-review.md
+│   ├── arc-pr-respond.md
 │   └── ca-store-problem-context.md
 ├── agents/           # Custom agent definitions
 │   ├── arc-root-cause-analyzer.md
+│   ├── arc-deep-research.md
+│   ├── arc-technical-writer.md
 │   ├── ca-brainstormer.md
-│   └── ca-problem-theory-validator.md
+│   ├── ca-problem-theory-validator.md
+│   └── ca-code-review-validator.md
 ├── scripts/          # Installation and utility scripts
 └── README.md
 ```
