@@ -8,15 +8,19 @@
     {
       "name": "arcanum",
       "source": "./",
-      "description": "Advanced debugging and code review workflows with parallel theory validation, root cause analysis, and PR review assistance",
-      "version": "1.0.3",
+      "description": "Advanced debugging, code review, and technical documentation workflows with parallel theory validation, root cause analysis, PR review assistance, and elite technical writing",
+      "version": "1.0.4",
       "keywords": [
         "debugging",
         "troubleshooting",
         "code-review",
         "root-cause-analysis",
         "investigation",
-        "pr-review"
+        "pr-review",
+        "agents",
+        "parallel-validation",
+        "documentation",
+        "technical-writing"
       ]
     }
   ]

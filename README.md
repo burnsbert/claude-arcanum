@@ -24,6 +24,7 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 **Agents** (Specialized intelligence engines)
 - **arc-root-cause-analyzer** - Root cause analysis for bugs.
 - **arc-deep-research** - Deep research that prioritizes completeness and correctness over speed and token efficiency. This is not for asking what the capital of Delaware is. This is for tricky questions that simpler research agents might bounce off of.
+- **arc-technical-writer** - Elite technical documentation specialist for creating, checking, and modifying technical docs. Excels at researching codebases and writing clear, accurate documentation with proper verification passes.
 
 ### Architecture
 
@@ -48,6 +49,7 @@ User-Invokable Agents         Use Cases
 ─────────────────────────     ───────────────────
 arc-root-cause-analyzer  ──▶  Forensic bug analysis
 arc-deep-research ───────────▶ Deep research (four-step methodology)
+arc-technical-writer ────────▶ Technical documentation creation
 ```
 
 ## Quick Start
@@ -300,6 +302,77 @@ Question: How does the authentication workflow work from login to token validati
 
 Context: Working on bug related to session timeout, need to understand
 complete auth flow including middleware, validation, and token refresh.
+```
+
+---
+
+#### `arc-technical-writer` - Elite Technical Documentation Agent
+
+**Purpose**: Create, check, and modify comprehensive technical documentation including markdown documents, code comments, and architectural documentation for developers and LLMs. Excels at researching codebases to understand implementation details, writing clear and accurate documentation, and performing thorough verification passes before finalizing.
+
+**This is a standalone documentation agent** - Designed for direct invocation when you need high-quality technical documentation that requires codebase research and verification.
+
+**Core Capabilities**:
+- **Feature documentation** with architecture diagrams, examples, and troubleshooting
+- **API documentation** with request/response formats, error codes, and usage patterns
+- **Code comments** that explain complex logic, integration points, and gotchas
+- **Bug pattern guides** (bugfinder.md) documenting common issues and prevention
+- **Architecture documentation** with system overviews, data flows, and design decisions
+- **Developer onboarding guides** and technical specifications
+
+**Three-Phase Workflow**:
+
+**Phase 1 - Research (30-40%)**:
+- Locates and reads all relevant code files
+- Traces data flows and component interactions
+- Analyzes tests to understand expected behavior
+- Reviews existing documentation for gaps or conflicts
+- Takes detailed notes with file:line references
+
+**Phase 2 - Drafting (30-40%)**:
+- Organizes information into logical sections
+- Writes clear prose with appropriate technical depth
+- Adds code examples from the actual codebase
+- Includes specific code references (file:line) throughout
+- Links to related documentation
+
+**Phase 3 - Verification (20-30%)**:
+- Verifies every code reference is correct
+- Tests all code examples
+- Cross-checks claims against implementation
+- Validates external links
+- Ensures completeness and clarity
+
+**Quality Standards**:
+- Every technical claim backed by code reference (file:line)
+- All examples tested and verified to work
+- Written for target audience (developers, LLMs, or both)
+- Comprehensive coverage of use cases and edge cases
+- Structured for easy maintenance and updates
+
+**Usage** (via Task tool):
+```
+Use the arc-technical-writer agent to document:
+
+Task: Create comprehensive API documentation for the user authentication endpoints
+
+Include: Request/response formats, error codes, authentication flow,
+rate limits, and practical usage examples. Target audience: frontend
+developers integrating with the API.
+```
+
+```
+Use the arc-technical-writer agent to:
+
+Task: Add detailed comments to the payment processing module explaining
+how the different components interact, including edge cases and error handling.
+```
+
+```
+Use the arc-technical-writer agent to create:
+
+Task: A bugfinder.md documenting common bug patterns in our authentication
+system, including detection strategies and prevention best practices.
 ```
 
 ## Notes

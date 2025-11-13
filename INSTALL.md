@@ -163,6 +163,7 @@ Agents are invoked via the Task tool and provide specialized intelligence.
 # Install all agents
 cp agents/arc-root-cause-analyzer.md ~/.claude/agents/
 cp agents/arc-deep-research.md ~/.claude/agents/
+cp agents/arc-technical-writer.md ~/.claude/agents/
 cp agents/ca-brainstormer.md ~/.claude/agents/
 cp agents/ca-problem-theory-validator.md ~/.claude/agents/
 cp agents/ca-code-review-validator.md ~/.claude/agents/
@@ -173,6 +174,7 @@ cp agents/ca-code-review-validator.md ~/.claude/agents/
 # Just user-facing agents (arc-*)
 cp agents/arc-root-cause-analyzer.md ~/.claude/agents/
 cp agents/arc-deep-research.md ~/.claude/agents/
+cp agents/arc-technical-writer.md ~/.claude/agents/
 
 # Note: ca-* agents are automatically used by arc-* commands/agents
 # You typically want all agents even if you're selective about commands
@@ -193,6 +195,7 @@ cp agents/arc-deep-research.md ~/.claude/agents/
 └── agents/             # Task tool agents
     ├── arc-root-cause-analyzer.md
     ├── arc-deep-research.md
+    ├── arc-technical-writer.md
     ├── ca-brainstormer.md
     ├── ca-problem-theory-validator.md
     └── ca-code-review-validator.md
