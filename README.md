@@ -84,12 +84,6 @@ Need a code review sidekick? Run this to get a comprehensive three-pass validate
 ```
 Get validated analysis and prioritized response plan. Claude Code's context will be up to speed and ready to fix those nitpicks (and larger issues).
 
-**Need technical documentation?**
-```
-Use the arc-technical-writer agent to create API documentation with examples.
-```
-Elite technical writer that researches your codebase and creates verified documentation.
-
 ## Structure
 
 ```
