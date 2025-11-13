@@ -86,10 +86,9 @@ Get validated analysis and prioritized response plan. Claude Code's context will
 
 **Need technical documentation?**
 ```
-Use the arc-technical-writer agent to create comprehensive API documentation
-for the user authentication endpoints with examples and error codes.
+Use the arc-technical-writer agent to create API documentation with examples.
 ```
-Elite technical writer that researches codebases and creates verified documentation.
+Elite technical writer that researches your codebase and creates verified documentation.
 
 ## Structure
 
