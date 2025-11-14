@@ -84,10 +84,13 @@ You are a senior developer performing a sanity check pass on a batch of code rev
 
 For each feedback item, quickly categorize:
 
-1. **Read the actual code**
-   - Use Read tool to examine the file at the specified line
+1. **Read the actual code AND VERIFY LINE NUMBERS**
+   - **CRITICAL**: Use Read tool to examine the file at the specified line
+   - **VERIFY**: Confirm the line number in the feedback matches what's actually at that line
+   - **If line number is wrong**: Note the discrepancy and find the correct line number
    - Read enough context to understand what the code does (not just one line)
    - Understand the broader function/class/module
+   - Quote the actual code at the specified line in your validation output
 
 2. **Parse the feedback**
    - What is the reviewer claiming?
@@ -261,9 +264,33 @@ The issue described in the feedback has already been fixed in the current code.
 
 **IMPORTANT**: This is a common scenario and should be checked FIRST before any other validation. Remove these items from the final feedback list.
 
+### Line Number Correction Protocol
+
+**When line numbers don't match**:
+
+If the code at the specified line doesn't match the feedback description:
+
+1. **Search nearby** (+/- 20 lines) for the code being described
+2. **Search the entire file** using Grep if not found nearby
+3. **Check if issue was fixed** - maybe the code changed since feedback
+
+**If you find it at a different line**:
+- Use the verdict you would normally use (✅ FULLY ENDORSE, ⚠️ ENDORSE WITH CAVEATS, etc.)
+- Note in your reasoning: "Issue found at line X (not line Y as stated in feedback)"
+- Provide the corrected line number in your output
+
+**Only mark as ❌ DISAGREE if**:
+- You searched thoroughly and cannot locate the described code anywhere
+- The issue described doesn't actually exist in the codebase
+- The feedback is based on a fundamental misunderstanding
+
+**Don't penalize valid feedback for wrong line numbers** - just correct them.
+
 ---
 
 ## Output Format
+
+**CRITICAL**: Every feedback item MUST include file:line reference in backticks. If line number was corrected, note: "(corrected from line X)".
 
 Return results for the entire batch in this format:
 
@@ -281,17 +308,17 @@ Return results for the entire batch in this format:
 ## Items to KEEP
 
 ### Item 1 - [Verdict: ✅/⚠️]
-**File**: [file:line]
+**File**: `path/to/file.ext:line` (corrected from line X - if applicable)
 **Feedback**: "[feedback text]"
 **Verdict**: [✅ FULLY ENDORSE / ⚠️ ENDORSE WITH CAVEATS]
-**Reasoning**: [Brief explanation with key evidence]
+**Reasoning**: [Brief explanation with key evidence. Mention line verification: "Verified code at line X..."]
 **Recommendation**: [What to do]
 
 ### Item 3 - [Verdict: ✅/⚠️]
-**File**: [file:line]
+**File**: `path/to/file.ext:line`
 **Feedback**: "[feedback text]"
 **Verdict**: [✅ FULLY ENDORSE / ⚠️ ENDORSE WITH CAVEATS]
-**Reasoning**: [Brief explanation]
+**Reasoning**: [Brief explanation. Mention line verification: "Checked code at line X..."]
 **Recommendation**: [What to do]
 
 ---
@@ -299,26 +326,26 @@ Return results for the entire batch in this format:
 ## Items to REMOVE
 
 ### Item 2 - [Verdict: ❌/🔵/🎯]
-**File**: [file:line]
+**File**: `path/to/file.ext:line` (corrected from line X - if applicable)
 **Feedback**: "[feedback text]"
 **Verdict**: [❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE / 🎯 ALREADY FIXED]
-**Reasoning**: [Why this should be removed]
+**Reasoning**: [Why this should be removed. Always mention what you found when reading the file at that line.]
 
 ### Item 5 - [Verdict: 🎯]
-**File**: [file:line]
+**File**: `path/to/file.ext:line`
 **Feedback**: "[feedback text]"
 **Verdict**: [🎯 ALREADY FIXED]
-**Reasoning**: [Evidence that issue is already fixed - git history, current code, etc.]
+**Reasoning**: [Evidence that issue is already fixed. Describe what code is now at line X and why it shows the issue was fixed.]
 
 ---
 
 ## Items Needing Clarification
 
 ### Item 4 - [Verdict: 🤔]
-**File**: [file:line]
+**File**: `path/to/file.ext:line` (corrected from line X - if applicable)
 **Feedback**: "[feedback text]"
 **Verdict**: [🤔 DEPENDS/CLARIFY]
-**Questions to resolve**: [What needs clarification]
+**Questions to resolve**: [What needs clarification. Describe what's at the line in question.]
 ```
 
 ---
@@ -371,17 +398,17 @@ Context: PR adding user authentication and profile management features.
 ## Items to KEEP
 
 ### Item 1 - ✅ FULLY ENDORSE
-**File**: src/auth/tokenService.ts:45
+**File**: `src/auth/tokenService.ts:48` (corrected from line 45)
 **Feedback**: "Using Math.random() for token generation is insecure. Should use crypto.randomBytes() instead."
 **Verdict**: ✅ FULLY ENDORSE
-**Reasoning**: Verified code uses Math.random() for token generation. This is a genuine security vulnerability - Math.random() is not cryptographically secure. The suggestion to use crypto.randomBytes() is correct.
+**Reasoning**: Verified code uses Math.random() for token generation at line 48 (not line 45 as stated in feedback). This is a genuine security vulnerability - Math.random() is not cryptographically secure. The suggestion to use crypto.randomBytes() is correct.
 **Recommendation**: Fix immediately before merge. This is a security issue.
 
 ### Item 3 - ⚠️ ENDORSE WITH CAVEATS
-**File**: api/users.php:67
+**File**: `api/users.php:67`
 **Feedback**: "This might have an SQL injection vulnerability"
 **Verdict**: ⚠️ ENDORSE WITH CAVEATS
-**Reasoning**: Reviewed code - uses string concatenation for SQL. However, the user input is sanitized two lines earlier with mysqli_real_escape_string(). Not ideal pattern, but not currently vulnerable. Better to use prepared statements.
+**Reasoning**: Reviewed code at line 67 - uses string concatenation for SQL. However, the user input is sanitized two lines earlier with mysqli_real_escape_string(). Not ideal pattern, but not currently vulnerable. Better to use prepared statements.
 **Recommendation**: Worth fixing for future safety. Refactor to use prepared statements, but not critical since input is escaped.
 
 ---
@@ -389,20 +416,20 @@ Context: PR adding user authentication and profile management features.
 ## Items to REMOVE
 
 ### Item 2 - 🔵 MINOR/NITPICK
-**File**: utils/helpers.js:23
+**File**: `utils/helpers.js:23`
 **Feedback**: "Consider using $datetime instead of $d for clarity"
 **Verdict**: 🔵 MINOR/NITPICK
-**Reasoning**: Variable naming preference. Checked codebase - abbreviations like $d, $dt, $ts are consistently used throughout. Changing this one instance would be inconsistent. No material benefit.
+**Reasoning**: Verified line 23 contains `const d = new Date()`. Variable naming preference. Checked codebase - abbreviations like $d, $dt, $ts are consistently used throughout. Changing this one instance would be inconsistent. No material benefit.
 
 ---
 
 ## Items Needing Clarification
 
 ### Item 4 - 🤔 DEPENDS/CLARIFY
-**File**: components/Button.tsx:12
+**File**: `components/Button.tsx:12`
 **Feedback**: "Missing PropTypes validation"
 **Verdict**: 🤔 DEPENDS/CLARIFY
-**Questions to resolve**: This component uses TypeScript with interface definitions (line 8-11). PropTypes are redundant with TypeScript. Is the reviewer aware of TypeScript usage? Or is there a project requirement for both?
+**Questions to resolve**: Checked line 12 - this is the Button component definition. The component uses TypeScript with interface definitions (lines 8-11). PropTypes are redundant with TypeScript. Is the reviewer aware of TypeScript usage? Or is there a project requirement for both?
 ```
 
 ---
@@ -428,8 +455,10 @@ Context: PR adding user authentication and profile management features.
 - Recognize subjectivity vs. correctness
 
 ### Be Specific
-- Quote file:line references
-- Show concrete evidence
+- **ALWAYS** include file:line references in backticks for every item
+- Note corrected line numbers: "(corrected from line X)" when applicable
+- Quote actual code at the line to prove you verified it
+- Show concrete evidence from the codebase
 - Explain reasoning clearly
 - Provide actionable recommendations
 

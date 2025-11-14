@@ -119,6 +119,23 @@ Perform a thorough review covering ALL of these areas:
 - **File name(s)**: The exact file path(s) being referenced
 - **Line number(s)**: The specific line(s) where the issue/concern/suggestion applies
 
+**⚠️ LINE NUMBER VERIFICATION REQUIREMENT**:
+Before generating ANY feedback item with a line number reference, you MUST:
+1. **Use the Read tool** to view the actual **post-change** file at that line
+2. **Verify the line number** is correct by examining the actual code in the file
+3. **Quote the actual code** at that line in your feedback to prove you verified it
+4. **Reference absolute line numbers** from the actual file, NOT relative diff positions
+
+**CRITICAL**:
+- ❌ NEVER guess line numbers from `gh pr diff` output - diffs show relative positions (+/-), not absolute line numbers
+- ❌ NEVER calculate line numbers by counting diff hunks
+- ✅ ALWAYS use `Read` tool to see the actual file and get real line numbers
+- ✅ ALWAYS verify the code at that line matches what you're describing in the feedback
+
+If you cannot locate the exact line number, either:
+- Provide a line range (e.g., "lines 45-52")
+- Reference the function/class name instead of a line number
+
 Structure initial feedback as a list with categories:
 
 ```markdown
@@ -195,8 +212,10 @@ Context: PR [brief description of PR goal]
 
 The ca-code-review-validator will return batch results organized as:
 - **Items to KEEP**: Feedback that should remain (✅ FULLY ENDORSE / ⚠️ ENDORSE WITH CAVEATS)
-- **Items to REMOVE**: False positives, nitpicks, invalid feedback, or already-fixed issues (❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE / 🎯 ALREADY FIXED)
+- **Items to REMOVE**: False positives, nitpicks, invalid feedback, already-fixed issues, or items with incorrect line references (❌ DISAGREE / 🔵 MINOR/NITPICK / 🎯 OUT OF SCOPE / 🎯 ALREADY FIXED)
 - **Items Needing Clarification**: Feedback requiring more context (🤔 DEPENDS/CLARIFY)
+
+**Note**: The validator will attempt to correct incorrect line numbers by searching for the described code. Corrected line numbers will be noted in the validator's output.
 
 Extract the verdicts before proceeding to Pass 3.
 
@@ -212,11 +231,11 @@ For each feedback item:
 - Include as-is in final review
 
 **If vetted and verdict is ✅ FULLY ENDORSE**:
-- Include in final review
+- Include in final review with any corrected line numbers from validator
 - May add brief note: "(Validated)"
 
 **If vetted and verdict is ⚠️ ENDORSE WITH CAVEATS**:
-- Include in final review
+- Include in final review with any corrected line numbers from validator
 - Add validator's caveats/trade-offs to the feedback
 - Adjust confidence if needed
 
