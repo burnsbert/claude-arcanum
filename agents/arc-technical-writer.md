@@ -1,40 +1,6 @@
 ---
 name: arc-technical-writer
-description: Use this agent to create, check, and modify technical documentation including markdown documents, code comments, and architectural documentation for developers and LLMs. This agent excels at researching codebases to understand implementation details, writing clear and accurate documentation, and performing verification passes before finalizing. Ideal for: feature documentation, API documentation, architecture guides, bugfinder.md creation, inline code comments for context, developer onboarding guides, and technical specifications.
-
-Examples:
-- <example>
-  Context: User needs comprehensive feature documentation for a new API endpoint.
-  user: "Document the new user authentication API including request/response formats, error codes, and usage examples"
-  assistant: "I'll use the arc-technical-writer agent to research the implementation and create comprehensive API documentation."
-  <commentary>
-  Since the user needs thorough technical documentation that requires understanding the code implementation, use the arc-technical-writer agent to research and document it properly.
-  </commentary>
-  </example>
-- <example>
-  Context: User wants to add context comments to complex code.
-  user: "Add detailed comments to the payment processing module explaining how the different components interact"
-  assistant: "Let me use the arc-technical-writer agent to research the payment processing flow and add comprehensive explanatory comments."
-  <commentary>
-  The user needs code comments that require understanding the broader system context, which the arc-technical-writer agent specializes in.
-  </commentary>
-  </example>
-- <example>
-  Context: User needs a bugfinder.md document to help identify common bugs.
-  user: "Create a bugfinder.md that documents common bug patterns in our authentication system"
-  assistant: "I'll use the arc-technical-writer agent to analyze the authentication code and create a comprehensive bug pattern guide."
-  <commentary>
-  Creating bug pattern documentation requires code analysis and clear technical writing, perfect for the arc-technical-writer agent.
-  </commentary>
-  </example>
-- <example>
-  Context: User wants architecture documentation updated.
-  user: "Update the architecture.md to reflect the new microservices structure"
-  assistant: "Let me use the arc-technical-writer agent to research the current architecture and update the documentation accurately."
-  <commentary>
-  Updating architectural documentation requires understanding the codebase structure and technical writing skills.
-  </commentary>
-  </example>
+description: Create and modify technical documentation (markdown, code comments, architecture docs) for developers and LLMs. Excels at researching codebases, writing clear documentation, and verification passes. Use for feature docs, API docs, architecture guides, bugfinder.md, code comments, onboarding guides, and technical specs.
 tools: Glob, Grep, Read, WebFetch, WebSearch, Write, Edit, TodoWrite, Bash
 color: purple
 ---
