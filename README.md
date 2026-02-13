@@ -26,6 +26,14 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 - **arc-deep-research** - Deep research that prioritizes completeness and correctness over speed and token efficiency. This is not for asking what the capital of Delaware is. This is for tricky questions that simpler research agents might bounce off of.
 - **arc-technical-writer** - Elite technical documentation specialist for creating, checking, and modifying technical docs. Excels at researching codebases and writing clear, accurate documentation with proper verification passes.
 
+**Team-Based Workflows** (Agent teams with dynamic parallel investigation)
+- **arc-research-team** - Parallel deep research using a team of 3 researcher agents investigating independent threads simultaneously, with a dedicated synthesizer producing a cohesive final report. For complex, multi-faceted questions that benefit from breadth-first parallel investigation.
+- **arc-war-room** - Team-based parallel investigation for intractable bugs. Brainstorms theories, dispatches investigators in parallel, dynamically spawns new investigators when promising leads are discovered mid-investigation. The heavy artillery when arc-investigate isn't enough.
+
+**Semi-Autonomous Development** (Story-to-PR automation)
+- **arc-maestro** - Semi-autonomous development workflow that takes a Jira story (or file-based story) from research to production-ready PR. 10-phase pipeline: Initialize, Scout, Questions, Plan, Review, Approve, Develop, Code Review, Respond, Complete+PR. Achieves 80%+ autonomous operation with strategic user checkpoints.
+- **arc-maestro-review** - Code review and PR creation phases (8-10) of the Maestro workflow. Run independently after development is complete to perform two-pass code review, address concerns with regression tests, and create the pull request.
+
 ### Architecture
 
 Note: everything a user is meant to call has the arc- preface. Commands and agents with ca- are utility resources that the arc- commands and agents call, but aren't designed for direct use by the user.
@@ -45,6 +53,22 @@ Agent-Powered Commands        Agents (Internal)
 /arc-llm ──────────────────▶  ca-store-problem-context (utility)
                               + direct file reading
 
+/arc-research-team ────────▶  ca-research-agent (×3 parallel, team)
+                 └──────────▶ ca-research-synthesizer (team)
+
+/arc-war-room ────────────▶  ca-store-problem-context (utility)
+                 │            ca-brainstormer (ultrathink)
+                 └──────────▶ ca-war-room-investigator (×3-5 dynamic, team)
+
+/arc-maestro ─────────────▶  ca-maestro-scout (research)
+                 │            ca-maestro-planner (task breakdown)
+                 │            ca-maestro-plan-reviewer (quality gate)
+                 └──────────▶ ca-maestro-dev-doer / senior / frontend / devops
+                              ca-maestro-task-validator (per task)
+
+/arc-maestro-review ─────▶  ca-maestro-code-review (two-pass)
+                 └──────────▶ ca-maestro-code-review-responder
+
 User-Invokable Agents         Use Cases
 ─────────────────────────     ───────────────────
 arc-root-cause-analyzer  ──▶  Forensic bug analysis
@@ -59,6 +83,12 @@ arc-technical-writer ────────▶ Technical documentation creatio
 /arc-investigate
 ```
 Gets theories, validates them, and gives you ranked next steps.
+
+**Stuck on a *really* tough bug?**
+```
+/arc-war-room
+```
+Like arc-investigate but with a persistent team that chases new leads as they emerge during investigation.
 
 **Just fixed a bug?**
 ```
@@ -84,24 +114,59 @@ Need a code review sidekick? Run this to get a comprehensive three-pass validate
 ```
 Get validated analysis and prioritized response plan. Claude Code's context will be up to speed and ready to fix those nitpicks (and larger issues).
 
+**Complex research question with multiple facets?**
+```
+/arc-research-team How does auth work across the frontend, API, and database layers?
+```
+Decomposes your question into independent threads, dispatches 3 parallel researchers, and synthesizes a cohesive report.
+
+**Want to implement a story from Jira (or a file)?**
+```
+/arc-maestro PROJ-123
+```
+Semi-autonomous 10-phase pipeline: researches codebase, plans tasks, implements with TDD, validates, reviews code, addresses concerns, and creates PR. 80%+ autonomous with strategic user checkpoints.
+
+**Ready to review and ship Maestro work?**
+```
+/arc-maestro-review PROJ-123
+```
+Runs two-pass code review (with bug-finding), addresses concerns with regression tests, commits, and creates the PR.
+
 ## Structure
 
 ```
 claude-arcanum/
 ├── commands/          # Custom slash commands for Claude Code
 │   ├── arc-investigate.md
+│   ├── arc-maestro.md
+│   ├── arc-maestro-review.md
 │   ├── arc-rca.md
 │   ├── arc-llm.md
 │   ├── arc-pr-review.md
 │   ├── arc-pr-respond.md
+│   ├── arc-research-team.md
+│   ├── arc-war-room.md
 │   └── ca-store-problem-context.md
 ├── agents/           # Custom agent definitions
 │   ├── arc-root-cause-analyzer.md
 │   ├── arc-deep-research.md
 │   ├── arc-technical-writer.md
 │   ├── ca-brainstormer.md
+│   ├── ca-code-review-validator.md
+│   ├── ca-maestro-code-review.md
+│   ├── ca-maestro-code-review-responder.md
+│   ├── ca-maestro-dev-doer.md
+│   ├── ca-maestro-devops-dev-doer.md
+│   ├── ca-maestro-frontend-dev-doer.md
+│   ├── ca-maestro-plan-reviewer.md
+│   ├── ca-maestro-planner.md
+│   ├── ca-maestro-scout.md
+│   ├── ca-maestro-senior-dev-doer.md
+│   ├── ca-maestro-task-validator.md
 │   ├── ca-problem-theory-validator.md
-│   └── ca-code-review-validator.md
+│   ├── ca-research-agent.md
+│   ├── ca-research-synthesizer.md
+│   └── ca-war-room-investigator.md
 ├── scripts/          # Installation and utility scripts
 └── README.md
 ```
@@ -239,6 +304,69 @@ Direct commands that interact with GitHub via the `gh` CLI.
 ```
 ---
 
+#### `/arc-research-team` - Team-Based Parallel Deep Research
+
+**Purpose**: Orchestrate a team of parallel researcher agents to investigate complex, multi-faceted research questions. Decomposes the question into independent threads, dispatches 3 researchers to investigate simultaneously, then synthesizes findings into a cohesive report.
+
+**Powered by**:
+- `ca-research-agent` (agent × 3, team-based parallel) - Independent thread investigation
+- `ca-research-synthesizer` (agent) - Combines findings into unified report
+- Claude Code agent teams (TeamCreate, SendMessage, shared TaskList)
+
+**How It Works**:
+1. **Decomposes** your question into 3-6 independent research threads
+2. **Creates a team** with shared task list and spawns 3 researcher agents
+3. **Researchers self-organize** — claiming tasks, investigating, reporting findings, and picking up new tasks
+4. **Follow-up tasks** discovered during research are added dynamically (capped at 12 total)
+5. **Synthesizer** combines all findings into a cohesive report organized by theme
+6. **Cleanup** — team is shut down, resources cleaned up, follow-up options presented
+
+**When to Use This vs arc-deep-research**:
+- Use `arc-deep-research` for single focused questions needing depth
+- Use `arc-research-team` for multi-faceted questions with 3+ independent threads needing breadth
+
+**Usage**:
+```bash
+/arc-research-team How does the plugin system work in this repository?
+/arc-research-team What's the full impact of upgrading from React 17 to 18?
+/arc-research-team How does auth work across the frontend, API, and database layers?
+```
+
+---
+
+#### `/arc-war-room` - Team-Based Parallel Investigation
+
+**Purpose**: War room for intractable bugs. Brainstorms theories, dispatches a persistent team of investigators to validate them in parallel, dynamically spawns new investigators when promising leads are discovered mid-investigation, and synthesizes ranked results with next steps.
+
+**Powered by**:
+- `ca-brainstormer` (agent, ultrathink) - Theory generation
+- `ca-war-room-investigator` (agent × 3-5, team-based dynamic) - Theory validation
+- Claude Code agent teams (TeamCreate, SendMessage, shared TaskList)
+
+**How It Works**:
+1. **Documents the problem** using existing problem context or creating one
+2. **Brainstorms theories** via ca-brainstormer with ultrathink for deep analysis
+3. **Assembles a war room** — creates team, tasks for each theory, spawns 3 investigators
+4. **Investigators validate theories** in parallel, reporting findings and new discoveries
+5. **Dynamic adaptation** — lead creates new tasks for discovered leads, spawns additional investigators (up to 5) when needed
+6. **Lead synthesizes** all findings into ranked results with cross-theory pattern detection
+7. **Cleanup** — team shut down, actionable next steps presented
+
+**When to Use This vs arc-investigate**:
+- Use `arc-investigate` for standard debugging — fixed theories, efficient parallel validation
+- Use `arc-war-room` for tough problems where investigation may reveal new leads that need chasing
+
+**Usage**:
+```bash
+# Auto-extract problem from current session
+/arc-war-room
+
+# With specific problem context
+/arc-war-room .problem.20250208-143022.md
+```
+
+---
+
 #### `arc-root-cause-analyzer` - Forensic Bug Analysis Agent
 
 **Purpose**: Deep forensic investigation that uses git history to trace bugs back to their origin, understand why they happened, and provide actionable prevention strategies.
@@ -324,6 +452,83 @@ complete auth flow including middleware, validation, and token refresh.
 - **Bug pattern guides** (bugfinder.md) documenting common issues and prevention
 - **Architecture documentation** with system overviews, data flows, and design decisions
 - **Developer onboarding guides** and technical specifications
+
+### Semi-Autonomous Development (Maestro)
+
+Maestro is a 10-phase semi-autonomous development workflow that takes a story from Jira (or a local file) through to a production-ready pull request. It achieves 80%+ autonomous operation while maintaining strategic user checkpoints for quality and alignment.
+
+#### `/arc-maestro` - Semi-Autonomous Development (Phases 1-7)
+
+**Purpose**: Research, plan, and implement a story with TDD, mandatory validation, and specialist agent routing.
+
+**10-Phase Pipeline**:
+1. **Initialize** - Load story from Jira or file, create context
+2. **Scout** - Research codebase patterns, conventions, and relevant code
+3. **Questions** - Ask user clarifying questions (if needed)
+4. **Plan** - Break story into tasks with difficulty ratings and TDD structure
+5. **Review** - Quality gate vets research, plan, and identifies issues
+6. **Approve** - User reviews and approves the plan
+7. **Develop** - Implement tasks with specialist routing, mandatory validation per task
+8. **Code Review** - Two-pass review with bug-finding (handled by `/arc-maestro-review`)
+9. **Respond** - Address concerns with regression tests (handled by `/arc-maestro-review`)
+10. **Complete + PR** - Commit, push, create pull request (handled by `/arc-maestro-review`)
+
+**Agent Routing** (Phase 7):
+- `[Type: frontend]` tasks route to `ca-maestro-frontend-dev-doer` (Opus)
+- `[Type: devops]` tasks route to `ca-maestro-devops-dev-doer` (Opus)
+- Difficulty 7+ tasks route to `ca-maestro-senior-dev-doer` (Opus)
+- Standard tasks (difficulty 1-6) use `ca-maestro-dev-doer` (Sonnet)
+- Every task is validated by `ca-maestro-task-validator` (mandatory)
+
+**Powered by** (10 specialized agents):
+- `ca-maestro-scout` - Codebase research and pattern discovery
+- `ca-maestro-planner` - Task breakdown with difficulty ratings and TDD
+- `ca-maestro-plan-reviewer` - Quality gate for research and plan
+- `ca-maestro-dev-doer` - Standard task implementation (Sonnet)
+- `ca-maestro-senior-dev-doer` - Complex task implementation (Opus)
+- `ca-maestro-frontend-dev-doer` - Frontend specialist (Opus)
+- `ca-maestro-devops-dev-doer` - DevOps/infrastructure specialist (Opus)
+- `ca-maestro-task-validator` - Strict completion validation (Sonnet)
+- `ca-maestro-code-review` - Two-pass code review with bug-finding (Opus)
+- `ca-maestro-code-review-responder` - Fix concerns with regression tests (Opus)
+
+**Usage**:
+```bash
+# From a Jira story
+/arc-maestro PROJ-123
+
+# From a local file
+/arc-maestro path/to/story.md
+
+# Resume interrupted work (auto-detects phase)
+/arc-maestro PROJ-123
+```
+
+**Context Files Created**:
+- `.maestro-{STORY-ID}.md` - Main context (story, research, decisions, progress)
+- `.maestro-{STORY-ID}-todo.md` - Task list with status tracking
+
+---
+
+#### `/arc-maestro-review` - Code Review + PR (Phases 8-10)
+
+**Purpose**: Perform two-pass code review with bug-finding, address all concerns, and create the pull request.
+
+**How It Works**:
+1. **Phase 8: Code Review** - `ca-maestro-code-review` generates comprehensive concerns (Pass 1), then vets them via `ca-code-review-validator` (Pass 2). Bugs require executable failure paths.
+2. **Phase 9: Respond** - `ca-maestro-code-review-responder` handles bugs first (with regression tests), then addresses other concerns. Each concern is fixed, documented, or dismissed with reasoning.
+3. **Phase 10: Complete** - Commits review fixes, pushes, and creates PR via `gh` CLI.
+
+**Usage**:
+```bash
+# With story ID
+/arc-maestro-review PROJ-123
+
+# Auto-detect from most recent .maestro-*.md file
+/arc-maestro-review
+```
+
+---
 
 ## Notes
 
