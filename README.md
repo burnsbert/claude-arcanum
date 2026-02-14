@@ -33,6 +33,9 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 **Creative Ideation** (Multi-round idea generation and ranking)
 - **arc-think-tank** - Creative ideation workflow that generates, critiques, evolves, and ranks ideas toward a goal. 5 rounds of thinking (Opus+ultrathink), vetting (Sonnet), and riffing (Opus) — each round with randomly assigned personalities that change how agents reason, evaluate, and evolve ideas. Final judge (Opus, personality-neutral) produces a ranked report. 17 serial agent calls, comparable to arc-war-room in scope.
 
+**Skills** (Conversational tools)
+- **rubber-duck** - A trusted peer developer for talking through technical ideas, designs, and plans. Follows a structured conversation flow: listen and understand, explore together, strengthen the idea, and summarize. Asks one question at a time, uses codebase research to verify claims, and gives honest feedback without being a rubber stamp or a blocker.
+
 ### Architecture
 
 Note: everything a user is meant to call has the arc- preface. Commands and agents with ca- are utility resources that the arc- commands and agents call, but aren't designed for direct use by the user.
@@ -154,6 +157,9 @@ claude-arcanum/
 │       ├── pragmatist.md
 │       ├── visionary.md
 │       └── connector.md
+├── skills/           # Conversational skills
+│   └── rubber-duck/
+│       └── SKILL.md
 ├── scripts/          # Installation and utility scripts
 └── README.md
 ```
@@ -503,6 +509,38 @@ Each round of the think-tank assigns a random personality to each agent (thinker
 - No consecutive repeats — each agent gets a different personality than it had in the previous round
 - Logged per round in the task context file for resume support
 - Judge remains personality-neutral — synthesizes all ideas on their merits regardless of source personality
+
+---
+
+### Skills
+
+#### `/rubber-duck` - Trusted Peer Developer
+
+**Purpose**: A conversational sounding board for when you want to talk through a technical idea, design, or plan. Acts as a trusted peer who wants your idea to succeed — not a rubber stamp, not a blocker.
+
+**How It Works**:
+
+The conversation flows through natural phases:
+
+1. **Listen and Understand** — Lets you explain your idea, restates it to confirm understanding, asks one clarifying question at a time. Stays here until both the problem and your approach are clear.
+2. **Explore Together** — Probes assumptions, edge cases, and failure modes. Asks "what happens when..." questions. Only explores alternatives after understanding why you chose this approach.
+3. **Strengthen** — Suggests specific improvements one at a time. Points out risks, asks about testing and rollback plans.
+4. **Summarize** — Only when asked or when the conversation wraps naturally. Recaps strengths, open concerns, decisions made, and remaining unknowns.
+
+**Key behaviors**:
+- One question or concern per response — never a wall of feedback
+- Understands before suggesting — won't offer alternatives until it grasps the problem and your thinking
+- Uses codebase research to verify claims instead of speculating
+- Direct but constructive — names problems plainly, frames concerns as questions
+
+**Usage**:
+```bash
+# Start a conversation
+/rubber-duck
+
+# With context
+/rubber-duck I'm thinking about replacing our REST API with GraphQL
+```
 
 ---
 
