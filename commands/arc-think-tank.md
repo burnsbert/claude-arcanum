@@ -83,7 +83,7 @@ date +tt-%Y%m%d-%H%M
 - Check if any `.task-tt-*.md` files exist
 - If one found: read it, show its goal, and ask "Resume this session, or start a new one?"
 - If multiple found: list them with their goals and ask which to resume (or start new)
-- **If resume**: Parse current round/step from the task file and jump to appropriate step
+- **If resume**: Parse current round/step from the task file. Also parse the personality log for no-repeat enforcement (same logic as the `+N` path above: check for `## Personality Log` section, grep for the last `Round N:` line, extract `prev_thinker_personality`, `prev_vetter_personality`, `prev_riffer_personality` -- or initialize as empty if no log exists). Then jump to the appropriate step.
 - **If start fresh or new**: Proceed to Step 1.4
 
 **If goal text was parsed**: Skip resume check entirely — this is a new session.

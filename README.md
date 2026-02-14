@@ -185,7 +185,7 @@ claude-arcanum/
 │   ├── ca-problem-theory-validator.md
 │   ├── ca-research-agent.md
 │   ├── ca-research-synthesizer.md
-│   └── ca-war-room-investigator.md
+│   ├── ca-war-room-investigator.md
 │   └── personalities/    # Personality definitions for think-tank
 │       ├── contrarian.md
 │       ├── pragmatist.md
@@ -515,7 +515,10 @@ complete auth flow including middleware, validation, and token refresh.
 /arc-think-tank How can we reduce customer churn? ./data/churn-analysis.csv ./docs/roadmap.md
 
 # Resume interrupted session (auto-detects from .task-tt-*.md)
-/arc-think-tank How can we reduce customer churn?
+/arc-think-tank
+
+# Add more rounds to an existing session
+/arc-think-tank +2
 ```
 
 **Personality System**:
