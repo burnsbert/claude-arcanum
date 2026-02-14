@@ -1,7 +1,7 @@
 {
   "name": "arcanum",
-  "version": "1.0.5",
-  "description": "Advanced debugging, code review, and technical documentation workflows with parallel theory validation, root cause analysis, PR review assistance, and elite technical writing",
+  "version": "1.3.0",
+  "description": "Advanced debugging, code review, deep research, technical documentation, and creative ideation workflows with parallel theory validation, team-based research, war room investigation, root cause analysis, PR review assistance, and elite technical writing",
   "author": {
     "name": "Eric Burns",
     "url": "https://github.com/burnsbert"
@@ -19,6 +19,11 @@
     "agents",
     "parallel-validation",
     "documentation",
-    "technical-writing"
+    "technical-writing",
+    "deep-research",
+    "research-team",
+    "war-room",
+    "think-tank",
+    "creative-ideation"
   ]
 }

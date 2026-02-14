@@ -26,6 +26,13 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 - **arc-deep-research** - Deep research that prioritizes completeness and correctness over speed and token efficiency. This is not for asking what the capital of Delaware is. This is for tricky questions that simpler research agents might bounce off of.
 - **arc-technical-writer** - Elite technical documentation specialist for creating, checking, and modifying technical docs. Excels at researching codebases and writing clear, accurate documentation with proper verification passes.
 
+**Team-Based Workflows** (Agent teams with dynamic parallel investigation)
+- **arc-research-team** - Parallel deep research using a team of 3 researcher agents investigating independent threads simultaneously, with a dedicated synthesizer producing a cohesive final report. For complex, multi-faceted questions that benefit from breadth-first parallel investigation.
+- **arc-war-room** - Team-based parallel investigation for intractable bugs. Brainstorms theories, dispatches investigators in parallel, dynamically spawns new investigators when promising leads are discovered mid-investigation. The heavy artillery when arc-investigate isn't enough.
+
+**Creative Ideation** (Multi-round idea generation and ranking)
+- **arc-think-tank** - Creative ideation workflow that generates, critiques, evolves, and ranks ideas toward a goal. 5 rounds of thinking (Opus+ultrathink), vetting (Sonnet), and riffing (Opus) — each round with randomly assigned personalities that change how agents reason, evaluate, and evolve ideas. Final judge (Opus, personality-neutral) produces a ranked report. 17 serial agent calls, comparable to arc-war-room in scope.
+
 ### Architecture
 
 Note: everything a user is meant to call has the arc- preface. Commands and agents with ca- are utility resources that the arc- commands and agents call, but aren't designed for direct use by the user.
@@ -45,6 +52,18 @@ Agent-Powered Commands        Agents (Internal)
 /arc-llm ──────────────────▶  ca-store-problem-context (utility)
                               + direct file reading
 
+/arc-research-team ────────▶  ca-research-agent (×3 parallel, team)
+                 └──────────▶ ca-research-synthesizer (team)
+
+/arc-war-room ────────────▶  ca-store-problem-context (utility)
+                 │            ca-brainstormer (ultrathink)
+                 └──────────▶ ca-war-room-investigator (×3-5 dynamic, team)
+
+/arc-think-tank ──────────▶  ca-think-tank-thinker (×5 serial, ultrathink)
+                 │            ca-think-tank-vetter (×6 serial)
+                 │            ca-think-tank-riffer (×5 serial)
+                 └──────────▶ ca-think-tank-judge (final report)
+
 User-Invokable Agents         Use Cases
 ─────────────────────────     ───────────────────
 arc-root-cause-analyzer  ──▶  Forensic bug analysis
@@ -59,6 +78,12 @@ arc-technical-writer ────────▶ Technical documentation creatio
 /arc-investigate
 ```
 Gets theories, validates them, and gives you ranked next steps.
+
+**Stuck on a *really* tough bug?**
+```
+/arc-war-room
+```
+Like arc-investigate but with a persistent team that chases new leads as they emerge during investigation.
 
 **Just fixed a bug?**
 ```
@@ -84,24 +109,51 @@ Need a code review sidekick? Run this to get a comprehensive three-pass validate
 ```
 Get validated analysis and prioritized response plan. Claude Code's context will be up to speed and ready to fix those nitpicks (and larger issues).
 
+**Complex research question with multiple facets?**
+```
+/arc-research-team How does auth work across the frontend, API, and database layers?
+```
+Decomposes your question into independent threads, dispatches 3 parallel researchers, and synthesizes a cohesive report.
+
+**Need creative ideas for a goal or problem?**
+```
+/arc-think-tank How can we reduce customer churn for our SaaS product? ./data/churn-analysis.csv
+```
+5 rounds of ideation, critique, and evolution — produces a ranked top-5 report with scores, risks, and next steps.
+
 ## Structure
 
 ```
 claude-arcanum/
 ├── commands/          # Custom slash commands for Claude Code
+│   ├── arc-think-tank.md
 │   ├── arc-investigate.md
 │   ├── arc-rca.md
 │   ├── arc-llm.md
 │   ├── arc-pr-review.md
 │   ├── arc-pr-respond.md
+│   ├── arc-research-team.md
+│   ├── arc-war-room.md
 │   └── ca-store-problem-context.md
 ├── agents/           # Custom agent definitions
 │   ├── arc-root-cause-analyzer.md
 │   ├── arc-deep-research.md
 │   ├── arc-technical-writer.md
 │   ├── ca-brainstormer.md
+│   ├── ca-code-review-validator.md
+│   ├── ca-think-tank-thinker.md
+│   ├── ca-think-tank-vetter.md
+│   ├── ca-think-tank-riffer.md
+│   ├── ca-think-tank-judge.md
 │   ├── ca-problem-theory-validator.md
-│   └── ca-code-review-validator.md
+│   ├── ca-research-agent.md
+│   ├── ca-research-synthesizer.md
+│   ├── ca-war-room-investigator.md
+│   └── personalities/    # Personality definitions for think-tank
+│       ├── contrarian.md
+│       ├── pragmatist.md
+│       ├── visionary.md
+│       └── connector.md
 ├── scripts/          # Installation and utility scripts
 └── README.md
 ```
@@ -239,6 +291,69 @@ Direct commands that interact with GitHub via the `gh` CLI.
 ```
 ---
 
+#### `/arc-research-team` - Team-Based Parallel Deep Research
+
+**Purpose**: Orchestrate a team of parallel researcher agents to investigate complex, multi-faceted research questions. Decomposes the question into independent threads, dispatches 3 researchers to investigate simultaneously, then synthesizes findings into a cohesive report.
+
+**Powered by**:
+- `ca-research-agent` (agent × 3, team-based parallel) - Independent thread investigation
+- `ca-research-synthesizer` (agent) - Combines findings into unified report
+- Claude Code agent teams (TeamCreate, SendMessage, shared TaskList)
+
+**How It Works**:
+1. **Decomposes** your question into 3-6 independent research threads
+2. **Creates a team** with shared task list and spawns 3 researcher agents
+3. **Researchers self-organize** — claiming tasks, investigating, reporting findings, and picking up new tasks
+4. **Follow-up tasks** discovered during research are added dynamically (capped at 12 total)
+5. **Synthesizer** combines all findings into a cohesive report organized by theme
+6. **Cleanup** — team is shut down, resources cleaned up, follow-up options presented
+
+**When to Use This vs arc-deep-research**:
+- Use `arc-deep-research` for single focused questions needing depth
+- Use `arc-research-team` for multi-faceted questions with 3+ independent threads needing breadth
+
+**Usage**:
+```bash
+/arc-research-team How does the plugin system work in this repository?
+/arc-research-team What's the full impact of upgrading from React 17 to 18?
+/arc-research-team How does auth work across the frontend, API, and database layers?
+```
+
+---
+
+#### `/arc-war-room` - Team-Based Parallel Investigation
+
+**Purpose**: War room for intractable bugs. Brainstorms theories, dispatches a persistent team of investigators to validate them in parallel, dynamically spawns new investigators when promising leads are discovered mid-investigation, and synthesizes ranked results with next steps.
+
+**Powered by**:
+- `ca-brainstormer` (agent, ultrathink) - Theory generation
+- `ca-war-room-investigator` (agent × 3-5, team-based dynamic) - Theory validation
+- Claude Code agent teams (TeamCreate, SendMessage, shared TaskList)
+
+**How It Works**:
+1. **Documents the problem** using existing problem context or creating one
+2. **Brainstorms theories** via ca-brainstormer with ultrathink for deep analysis
+3. **Assembles a war room** — creates team, tasks for each theory, spawns 3 investigators
+4. **Investigators validate theories** in parallel, reporting findings and new discoveries
+5. **Dynamic adaptation** — lead creates new tasks for discovered leads, spawns additional investigators (up to 5) when needed
+6. **Lead synthesizes** all findings into ranked results with cross-theory pattern detection
+7. **Cleanup** — team shut down, actionable next steps presented
+
+**When to Use This vs arc-investigate**:
+- Use `arc-investigate` for standard debugging — fixed theories, efficient parallel validation
+- Use `arc-war-room` for tough problems where investigation may reveal new leads that need chasing
+
+**Usage**:
+```bash
+# Auto-extract problem from current session
+/arc-war-room
+
+# With specific problem context
+/arc-war-room .problem.20250208-143022.md
+```
+
+---
+
 #### `arc-root-cause-analyzer` - Forensic Bug Analysis Agent
 
 **Purpose**: Deep forensic investigation that uses git history to trace bugs back to their origin, understand why they happened, and provide actionable prevention strategies.
@@ -324,6 +439,72 @@ complete auth flow including middleware, validation, and token refresh.
 - **Bug pattern guides** (bugfinder.md) documenting common issues and prevention
 - **Architecture documentation** with system overviews, data flows, and design decisions
 - **Developer onboarding guides** and technical specifications
+
+---
+
+#### `/arc-think-tank` - Creative Ideation Workflow
+
+**Purpose**: Generate, critique, evolve, and rank creative ideas toward a user-provided goal. Produces a ranked report of the top 5 ideas with scores, risks, and next steps.
+
+**Powered by** (17 serial agent calls):
+- `ca-think-tank-thinker` (agent × 5, Opus + ultrathink) - Generates 5 ideas per round
+- `ca-think-tank-vetter` (agent × 6, Sonnet) - Evaluates ideas with (+N) consensus system
+- `ca-think-tank-riffer` (agent × 5, Opus) - Evolves the most promising idea each round
+- `ca-think-tank-judge` (agent × 1, Opus) - Ranks top 5 with scoring and clustering
+
+**How It Works**:
+1. **Parse goal and materials** from arguments, create session context files
+2. **5 rounds of ideation**, each consisting of:
+   - **Personality assignment** — orchestrator randomly assigns a personality to each agent (no consecutive repeats)
+   - **Thinker** generates 5 new ideas (with ultrathink for deep creative analysis) using assigned personality
+   - **Vetter** evaluates all ideas, adding comments or incrementing (+N) consensus markers, guided by assigned personality
+   - **Riffer** picks the idea with the most improvement potential and creates an evolved version, guided by assigned personality
+   - **Personality logging** — selections logged to task context for resume support
+3. **Final vetting pass** gives all ideas one last evaluation (with assigned personality)
+4. **Judge** (personality-neutral) clusters redundant ideas, selects strongest representatives, and ranks the top 5
+5. **Report** with ranked ideas, scores, risks, next steps, honorable mentions, and themes
+
+**Context Files Created**:
+- `.task-{id}.md` - Session context (goal, materials, progress)
+- `.think-tank-{id}-ideas.md` - All ideas with comments and consensus signals
+- `.think-tank-{id}-report.md` - Final ranked report
+
+**Usage**:
+```bash
+# Goal only
+/arc-think-tank How can we improve developer onboarding?
+
+# Goal with material files
+/arc-think-tank How can we reduce customer churn? ./data/churn-analysis.csv ./docs/roadmap.md
+
+# Resume interrupted session (auto-detects from .task-tt-*.md)
+/arc-think-tank
+
+# Add more rounds to an existing session
+/arc-think-tank +2
+```
+
+**Personality System**:
+
+Each round of the think-tank assigns a random personality to each agent (thinker, vetter, riffer). Personalities affect reasoning style, evaluation criteria, and what the agent prioritizes — not just tone, but substantive behavioral differences. The orchestrator ensures no agent uses the same personality in consecutive rounds.
+
+**Four Personalities**:
+
+- **Contrarian** — Challenges assumptions, inverts conventional wisdom. Criteria: Originality > Impact > Feasibility. Values intellectual courage and breaking orthodoxy. Suspicious of consensus thinking and incrementalism.
+
+- **Pragmatist** — Focused on what's buildable now with real constraints. Criteria: Feasibility > Impact > Originality. Values incremental progress and clear implementation paths. Suspicious of ambitious moonshots and dependency chains.
+
+- **Visionary** — No constraints, big swings. Criteria: Impact > Originality > Feasibility. Values transformative change and long-term vision. Suspicious of incrementalism and playing it safe.
+
+- **Connector** — Cross-domain analogies and pattern matching. Criteria: Originality > Impact > Feasibility (via cross-pollination). Values importing proven patterns from other fields. Suspicious of siloed thinking and reinventing solutions.
+
+**How Personalities Work**:
+- Auto-assigned randomly at the start of each round via bash randomness (not LLM "random")
+- No consecutive repeats — each agent gets a different personality than it had in the previous round
+- Logged per round in the task context file for resume support
+- Judge remains personality-neutral — synthesizes all ideas on their merits regardless of source personality
+
+---
 
 ## Notes
 
