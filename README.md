@@ -30,6 +30,9 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 - **arc-research-team** - Parallel deep research using a team of 3 researcher agents investigating independent threads simultaneously, with a dedicated synthesizer producing a cohesive final report. For complex, multi-faceted questions that benefit from breadth-first parallel investigation.
 - **arc-war-room** - Team-based parallel investigation for intractable bugs. Brainstorms theories, dispatches investigators in parallel, dynamically spawns new investigators when promising leads are discovered mid-investigation. The heavy artillery when arc-investigate isn't enough.
 
+**Creative Ideation** (Multi-round idea generation and ranking)
+- **arc-think-tank** - Creative ideation workflow that generates, critiques, evolves, and ranks ideas toward a goal. 5 rounds of thinking (Opus+ultrathink), vetting (Sonnet), and riffing (Opus) — each round with randomly assigned personalities that change how agents reason, evaluate, and evolve ideas. Final judge (Opus, personality-neutral) produces a ranked report. 17 serial agent calls, comparable to arc-war-room in scope.
+
 **Semi-Autonomous Development** (Story-to-PR automation)
 - **arc-maestro** - Semi-autonomous development workflow that takes a Jira story (or file-based story) from research to production-ready PR. 10-phase pipeline: Initialize, Scout, Questions, Plan, Review, Approve, Develop, Code Review, Respond, Complete+PR. Achieves 80%+ autonomous operation with strategic user checkpoints.
 - **arc-maestro-review** - Code review and PR creation phases (8-10) of the Maestro workflow. Run independently after development is complete to perform two-pass code review, address concerns with regression tests, and create the pull request.
@@ -59,6 +62,11 @@ Agent-Powered Commands        Agents (Internal)
 /arc-war-room ────────────▶  ca-store-problem-context (utility)
                  │            ca-brainstormer (ultrathink)
                  └──────────▶ ca-war-room-investigator (×3-5 dynamic, team)
+
+/arc-think-tank ──────────▶  ca-think-tank-thinker (×5 serial, ultrathink)
+                 │            ca-think-tank-vetter (×6 serial)
+                 │            ca-think-tank-riffer (×5 serial)
+                 └──────────▶ ca-think-tank-judge (final report)
 
 /arc-maestro ─────────────▶  ca-maestro-scout (research)
                  │            ca-maestro-planner (task breakdown)
@@ -120,6 +128,12 @@ Get validated analysis and prioritized response plan. Claude Code's context will
 ```
 Decomposes your question into independent threads, dispatches 3 parallel researchers, and synthesizes a cohesive report.
 
+**Need creative ideas for a goal or problem?**
+```
+/arc-think-tank How can we reduce customer churn for our SaaS product? ./data/churn-analysis.csv
+```
+5 rounds of ideation, critique, and evolution — produces a ranked top-5 report with scores, risks, and next steps.
+
 **Want to implement a story from Jira (or a file)?**
 ```
 /arc-maestro PROJ-123
@@ -137,6 +151,7 @@ Runs two-pass code review (with bug-finding), addresses concerns with regression
 ```
 claude-arcanum/
 ├── commands/          # Custom slash commands for Claude Code
+│   ├── arc-think-tank.md
 │   ├── arc-investigate.md
 │   ├── arc-maestro.md
 │   ├── arc-maestro-review.md
@@ -153,6 +168,10 @@ claude-arcanum/
 │   ├── arc-technical-writer.md
 │   ├── ca-brainstormer.md
 │   ├── ca-code-review-validator.md
+│   ├── ca-think-tank-thinker.md
+│   ├── ca-think-tank-vetter.md
+│   ├── ca-think-tank-riffer.md
+│   ├── ca-think-tank-judge.md
 │   ├── ca-maestro-code-review.md
 │   ├── ca-maestro-code-review-responder.md
 │   ├── ca-maestro-dev-doer.md
@@ -167,6 +186,11 @@ claude-arcanum/
 │   ├── ca-research-agent.md
 │   ├── ca-research-synthesizer.md
 │   └── ca-war-room-investigator.md
+│   └── personalities/    # Personality definitions for think-tank
+│       ├── contrarian.md
+│       ├── pragmatist.md
+│       ├── visionary.md
+│       └── connector.md
 ├── scripts/          # Installation and utility scripts
 └── README.md
 ```
@@ -452,6 +476,69 @@ complete auth flow including middleware, validation, and token refresh.
 - **Bug pattern guides** (bugfinder.md) documenting common issues and prevention
 - **Architecture documentation** with system overviews, data flows, and design decisions
 - **Developer onboarding guides** and technical specifications
+
+---
+
+#### `/arc-think-tank` - Creative Ideation Workflow
+
+**Purpose**: Generate, critique, evolve, and rank creative ideas toward a user-provided goal. Produces a ranked report of the top 5 ideas with scores, risks, and next steps.
+
+**Powered by** (17 serial agent calls):
+- `ca-think-tank-thinker` (agent × 5, Opus + ultrathink) - Generates 5 ideas per round
+- `ca-think-tank-vetter` (agent × 6, Sonnet) - Evaluates ideas with (+N) consensus system
+- `ca-think-tank-riffer` (agent × 5, Opus) - Evolves the most promising idea each round
+- `ca-think-tank-judge` (agent × 1, Opus) - Ranks top 5 with scoring and clustering
+
+**How It Works**:
+1. **Parse goal and materials** from arguments, create session context files
+2. **5 rounds of ideation**, each consisting of:
+   - **Personality assignment** — orchestrator randomly assigns a personality to each agent (no consecutive repeats)
+   - **Thinker** generates 5 new ideas (with ultrathink for deep creative analysis) using assigned personality
+   - **Vetter** evaluates all ideas, adding comments or incrementing (+N) consensus markers, guided by assigned personality
+   - **Riffer** picks the idea with the most improvement potential and creates an evolved version, guided by assigned personality
+   - **Personality logging** — selections logged to task context for resume support
+3. **Final vetting pass** gives all ideas one last evaluation (with assigned personality)
+4. **Judge** (personality-neutral) clusters redundant ideas, selects strongest representatives, and ranks the top 5
+5. **Report** with ranked ideas, scores, risks, next steps, honorable mentions, and themes
+
+**Context Files Created**:
+- `.task-{id}.md` - Session context (goal, materials, progress)
+- `.think-tank-{id}-ideas.md` - All ideas with comments and consensus signals
+- `.think-tank-{id}-report.md` - Final ranked report
+
+**Usage**:
+```bash
+# Goal only
+/arc-think-tank How can we improve developer onboarding?
+
+# Goal with material files
+/arc-think-tank How can we reduce customer churn? ./data/churn-analysis.csv ./docs/roadmap.md
+
+# Resume interrupted session (auto-detects from .task-tt-*.md)
+/arc-think-tank How can we reduce customer churn?
+```
+
+**Personality System**:
+
+Each round of the think-tank assigns a random personality to each agent (thinker, vetter, riffer). Personalities affect reasoning style, evaluation criteria, and what the agent prioritizes — not just tone, but substantive behavioral differences. The orchestrator ensures no agent uses the same personality in consecutive rounds.
+
+**Four Personalities**:
+
+- **Contrarian** — Challenges assumptions, inverts conventional wisdom. Criteria: Originality > Impact > Feasibility. Values intellectual courage and breaking orthodoxy. Suspicious of consensus thinking and incrementalism.
+
+- **Pragmatist** — Focused on what's buildable now with real constraints. Criteria: Feasibility > Impact > Originality. Values incremental progress and clear implementation paths. Suspicious of ambitious moonshots and dependency chains.
+
+- **Visionary** — No constraints, big swings. Criteria: Impact > Originality > Feasibility. Values transformative change and long-term vision. Suspicious of incrementalism and playing it safe.
+
+- **Connector** — Cross-domain analogies and pattern matching. Criteria: Originality > Impact > Feasibility (via cross-pollination). Values importing proven patterns from other fields. Suspicious of siloed thinking and reinventing solutions.
+
+**How Personalities Work**:
+- Auto-assigned randomly at the start of each round via bash randomness (not LLM "random")
+- No consecutive repeats — each agent gets a different personality than it had in the previous round
+- Logged per round in the task context file for resume support
+- Judge remains personality-neutral — synthesizes all ideas on their merits regardless of source personality
+
+---
 
 ### Semi-Autonomous Development (Maestro)
 
