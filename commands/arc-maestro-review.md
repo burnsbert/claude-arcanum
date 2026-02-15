@@ -106,7 +106,7 @@ Context file: .maestro/context-{STORY-ID}.md
 Diary file: .maestro/diary-{STORY-ID}.md
 Todo file: .maestro/todo-{STORY-ID}.md
 
-Read the context file for story details, acceptance criteria, scout research, and implementation summary. Read the diary for implementation context and decisions. Perform Pass 1 (scan all changed files, flag concerns), then Pass 2 (validate each concern with enhanced bug-finding). Write the review report to the context file under "Code Review Report" section. Update the diary with review findings.
+Read the context file for story details, acceptance criteria, scout research, and implementation summary. Use `<!-- @tag -->` anchors to extract specific sections (e.g., `sed -n '/<!-- @research -->/,/<!-- @/p' file | sed '$d'`). Read the diary for implementation context and decisions. Perform Pass 1 (scan all changed files, flag concerns), then Pass 2 (validate each concern with enhanced bug-finding). Write the review report to the context file under a `<!-- @review -->` anchored "Code Review Report" section. Update the diary with review findings.
 ```
 
 Wait for completion.

@@ -419,6 +419,31 @@ Plan coverage: all 8 ACs covered after adding validation task
 
 ---
 
+## Querying Maestro Files
+
+Context file uses `<!-- @tag -->` anchors for targeted section extraction. Use these instead of reading the entire file when you only need specific information.
+
+**Extract a section:**
+```bash
+sed -n '/<!-- @TAG -->/,/<!-- @/p' .maestro/context-{STORY-ID}.md | sed '$d'
+```
+
+**Anchors**: `@story`, `@status`, `@research`, `@tasks`, `@completed`, `@current-task`, `@pending`, `@outputs`, `@blockers`, `@decisions`, `@review`
+
+**Quick status check:**
+```bash
+grep '^\*\*Phase\*\*:' .maestro/context-{STORY-ID}.md
+```
+
+**Diary queries** (tags: `[decision]`, `[problem]`, `[learning]`, `[success]`):
+```bash
+grep '\[problem\]' .maestro/diary-{STORY-ID}.md
+grep '\[decision\]' .maestro/diary-{STORY-ID}.md
+grep 'agent-name' .maestro/diary-{STORY-ID}.md
+```
+
+---
+
 ## Remember
 
 - You are the last quality gate before the user sees the plan. Make it count.

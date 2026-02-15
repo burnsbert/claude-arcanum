@@ -169,6 +169,7 @@ Create `.maestro/context-{STORY-ID}.md` with this template:
 ```markdown
 # Maestro Context: {STORY-ID}
 
+<!-- @story -->
 ## Story Details
 **Source**: {Jira: STORY-ID / File: filepath}
 **Title**: {title}
@@ -182,6 +183,7 @@ Create `.maestro/context-{STORY-ID}.md` with this template:
 **Acceptance Criteria**:
 {acceptance criteria}
 
+<!-- @status -->
 ## Current Status
 **Phase**: Phase 1: Initialize
 **Progress**: Story initialized
@@ -191,26 +193,34 @@ Create `.maestro/context-{STORY-ID}.md` with this template:
 
 _Agents update Phase, Progress, Last Updated, and Next Action as work progresses_
 
+<!-- @research -->
 ## Research Findings
 _Populated by scout agent_
 
+<!-- @tasks -->
 ## Task Progress
 
+<!-- @completed -->
 ### Completed Tasks
 _Track completed tasks with summaries as development progresses_
 
+<!-- @current-task -->
 ### Current Task
 _Track the task currently being worked on_
 
+<!-- @pending -->
 ### Pending Tasks
 _Remaining tasks from the plan_
 
+<!-- @outputs -->
 ## Agent Outputs
 _Agent outputs recorded here_
 
+<!-- @blockers -->
 ## Blockers
 _None at initialization_
 
+<!-- @decisions -->
 ## Decisions
 _Key decisions recorded here_
 ```
@@ -820,9 +830,27 @@ This command makes zero assumptions about language, framework, test runner, or c
 
 ### Context vs Diary Methodology
 
-- **Context file** (`.maestro/context-{STORY-ID}.md`): Status dashboard. Where things stand RIGHT NOW. Updated by every agent.
+- **Context file** (`.maestro/context-{STORY-ID}.md`): Status dashboard. Where things stand RIGHT NOW. Updated by every agent. Uses `<!-- @tag -->` anchors for section queries.
 - **Diary file** (`.maestro/diary-{STORY-ID}.md`): Narrative log. HOW we got here. Append-only, chronological. Written when agents discover something non-obvious.
 - **Todo file** (`.maestro/todo-{STORY-ID}.md`): Task list with checkboxes, difficulty ratings, and type tags.
+
+### Context File Anchors
+
+The context file uses HTML comment anchors for targeted section extraction:
+
+| Anchor | Section |
+|--------|---------|
+| `<!-- @story -->` | Story Details (title, type, description, AC) |
+| `<!-- @status -->` | Current Status (phase, progress, timestamps) |
+| `<!-- @research -->` | Research Findings (scout analysis) |
+| `<!-- @tasks -->` | Task Progress (parent section) |
+| `<!-- @completed -->` | Completed Tasks (with summaries) |
+| `<!-- @current-task -->` | Current Task |
+| `<!-- @pending -->` | Pending Tasks |
+| `<!-- @outputs -->` | Agent Outputs |
+| `<!-- @blockers -->` | Blockers |
+| `<!-- @decisions -->` | Decisions |
+| `<!-- @review -->` | Code Review Report (added by Phase 8) |
 
 ### Diary Entry Format
 

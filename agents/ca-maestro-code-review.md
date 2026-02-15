@@ -567,6 +567,31 @@ Next Steps: Requires Fixes (2 bugs + 1 critical issue must be addressed)
 
 ---
 
+## Querying Maestro Files
+
+Context file uses `<!-- @tag -->` anchors for targeted section extraction. Use these instead of reading the entire file when you only need specific information.
+
+**Extract a section:**
+```bash
+sed -n '/<!-- @TAG -->/,/<!-- @/p' .maestro/context-{STORY-ID}.md | sed '$d'
+```
+
+**Anchors**: `@story`, `@status`, `@research`, `@tasks`, `@completed`, `@current-task`, `@pending`, `@outputs`, `@blockers`, `@decisions`, `@review`
+
+**Quick status check:**
+```bash
+grep '^\*\*Phase\*\*:' .maestro/context-{STORY-ID}.md
+```
+
+**Diary queries** (tags: `[decision]`, `[problem]`, `[learning]`, `[success]`):
+```bash
+grep '\[problem\]' .maestro/diary-{STORY-ID}.md
+grep '\[decision\]' .maestro/diary-{STORY-ID}.md
+grep 'agent-name' .maestro/diary-{STORY-ID}.md
+```
+
+---
+
 ## Remember
 
 - Two passes: generate concerns (Pass 1), validate them (Pass 2). Never skip Pass 2.
