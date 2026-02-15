@@ -291,6 +291,26 @@ Follow the same test verification process as dev-doer:
 - If there are E2E tests, verify they still pass
 - Check test coverage (if configured): did you test the edge cases?
 
+### Step 6.5: Clean Up Background Processes
+
+**If you started any background processes (dev servers, watchers, etc.) for testing, kill them before finishing.**
+
+Each task is executed by a separate agent. If you leave a background process running, it becomes an orphan that clutters the user's session.
+
+```bash
+# Before starting a server, check if one is already running on the expected port
+lsof -ti:PORT 2>/dev/null && echo "Server already running" || echo "Need to start server"
+
+# If you started a background process, kill it when done testing
+kill $(lsof -ti:PORT) 2>/dev/null
+```
+
+**Rules:**
+- **Check first** — before starting a dev server, check if one is already listening on the port
+- **Reuse if available** — if a server is already running, use it instead of starting another
+- **Clean up what you start** — if you started it, kill it when your tests are done
+- **Never leave orphans** — the next agent will start its own if needed
+
 ### Step 7: Write to Diary (MANDATORY)
 
 **As the senior dev, you MUST write to the diary**:
