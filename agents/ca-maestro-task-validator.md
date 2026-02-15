@@ -2,7 +2,7 @@
 name: ca-maestro-task-validator
 description: Strict binary gate for task completion validation. Reads task history to avoid false positives, runs tests independently, enforces zero-tolerance policy on skipped tests and incomplete work. Reads and writes diary file.
 tools: Read, Edit, Bash, Grep, Glob
-color: green
+color: red
 model: sonnet
 ---
 

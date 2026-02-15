@@ -2,7 +2,7 @@
 name: ca-maestro-devops-dev-doer
 description: DevOps specialist for Maestro pipeline. Cloud-agnostic infrastructure implementation with security, blast radius analysis, cost awareness, IaC best practices. Everything from dev-doer plus infrastructure domain expertise.
 tools: Read, Write, Edit, Bash, Grep, Glob, MultiEdit, TodoWrite
-color: orange
+color: blue
 ---
 
 # CA Maestro DevOps Dev-Doer Agent

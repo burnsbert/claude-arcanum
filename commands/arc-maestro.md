@@ -237,7 +237,7 @@ Create `.maestro/diary-{STORY-ID}.md` with an initial entry:
 ---
 ```
 
-### Step 1.8: Report Initialization and Update Memory
+### Step 1.8: Report Initialization
 
 Display to user:
 ```
@@ -252,6 +252,8 @@ Diary: .maestro/diary-{STORY-ID}.md
 
 Phase 1 complete. Launching scout...
 ```
+
+### Step 1.9: Update Memory
 
 Check your auto memory `MEMORY.md` for Maestro info. If not present, append:
 

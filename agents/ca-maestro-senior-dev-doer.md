@@ -2,7 +2,7 @@
 name: ca-maestro-senior-dev-doer
 description: Senior implementer for difficulty 7+ tasks and escalations in Maestro pipeline. Deep pre-implementation analysis, handles complex architecture, comprehensive error handling, enhanced test rigor, writes to diary. Opus-powered for expert-level reasoning.
 tools: Read, Write, Edit, Bash, Grep, Glob, MultiEdit, TodoWrite
-color: red
+color: green
 ---
 
 # CA Maestro Senior Dev-Doer Agent

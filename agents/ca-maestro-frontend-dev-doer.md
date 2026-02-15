@@ -2,7 +2,7 @@
 name: ca-maestro-frontend-dev-doer
 description: Frontend specialist for Maestro pipeline. Framework-agnostic frontend implementation with component architecture, accessibility, state management, visual verification. Everything from dev-doer plus frontend domain expertise.
 tools: Read, Write, Edit, Bash, Grep, Glob, MultiEdit, TodoWrite
-color: purple
+color: blue
 ---
 
 # CA Maestro Frontend Dev-Doer Agent

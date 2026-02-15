@@ -2,7 +2,7 @@
 name: ca-maestro-dev-doer
 description: Standard implementer for difficulty 1-6 tasks in Maestro pipeline. Follows TDD when required, uses scout research patterns, runs tests independently, writes to diary. Sonnet-powered for efficiency.
 tools: Read, Write, Edit, Bash, Grep, Glob, MultiEdit, TodoWrite
-color: yellow
+color: green
 model: sonnet
 ---
 

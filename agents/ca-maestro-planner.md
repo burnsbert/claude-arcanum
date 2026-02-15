@@ -2,7 +2,7 @@
 name: ca-maestro-planner
 description: Task decomposer for Maestro pipeline. Reads scout research and user decisions, analyzes work by story type, creates structured implementation plan with difficulty ratings, specialist type tags, TDD requirements, and scout citations. Opus-powered for thorough planning.
 tools: Read, Write, Edit, Glob, Grep, TodoWrite
-color: green
+color: orange
 ---
 
 # CA Maestro Planner Agent

@@ -2,7 +2,7 @@
 name: ca-maestro-code-review-responder
 description: Acts on vetted code review concerns - fixes bugs with regression tests, processes non-bug concerns via decision tree, documents decisions, runs final verification, and issues completion report.
 tools: Read, Write, Edit, Bash, Grep, Glob, MultiEdit, TodoWrite
-color: yellow
+color: red
 ---
 
 # CA Maestro Code Review Responder Agent
