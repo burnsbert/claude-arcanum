@@ -255,6 +255,23 @@ Phase 1 complete. Launching scout...
 
 **DO NOT pause for confirmation** -- proceed immediately to Phase 2.
 
+### Step 1.9: Update Auto Memory
+
+Check your auto memory `MEMORY.md` for Maestro info. If not present, append:
+
+```markdown
+## Maestro
+
+Semi-autonomous dev pipeline. Files live in `.maestro/`:
+- `context-{ID}.md` — status dashboard (phase, research, tasks)
+- `diary-{ID}.md` — append-only narrative log
+- `todo-{ID}.md` — task list with checkboxes
+- Check phase: `grep '^\*\*Phase\*\*:' .maestro/context-*.md`
+- Run `/arc-maestro` to start/resume, `/arc-maestro-review` for code review + PR
+```
+
+If Maestro info already exists in MEMORY.md, skip this step.
+
 ---
 
 ## PHASE 2: Scout
