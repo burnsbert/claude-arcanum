@@ -1,7 +1,7 @@
 {
   "name": "arcanum",
-  "version": "1.3.0",
-  "description": "Advanced debugging, code review, deep research, technical documentation, and creative ideation workflows with parallel theory validation, team-based research, war room investigation, root cause analysis, PR review assistance, and elite technical writing",
+  "version": "1.4.0",
+  "description": "Advanced debugging, code review, deep research, technical documentation, creative ideation, and semi-autonomous development workflows with parallel theory validation, team-based research, war room investigation, root cause analysis, PR review assistance, elite technical writing, and Maestro development pipeline",
   "author": {
     "name": "Eric Burns",
     "url": "https://github.com/burnsbert"
@@ -24,6 +24,9 @@
     "research-team",
     "war-room",
     "think-tank",
-    "creative-ideation"
+    "creative-ideation",
+    "maestro",
+    "semi-autonomous",
+    "development-pipeline"
   ]
 }

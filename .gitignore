@@ -1,5 +1,7 @@
 # Working files - dot-prefixed markdown files in project root
 /.*.md
+/.maestro/
+/.stories/
 
 # Project-specific Claude instructions (keep local only)
 /CLAUDE.md
