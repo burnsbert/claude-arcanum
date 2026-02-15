@@ -557,7 +557,8 @@ Determine which agent to use. **Two-dimensional routing -- check type tag FIRST:
 
 2. **Difficulty rating** (fallback for untagged tasks):
    - Difficulty 7 or higher -> use `ca-maestro-senior-dev-doer`
-   - Difficulty 1-6 -> use `ca-maestro-dev-doer`
+   - Difficulty 4-6 -> use `ca-maestro-dev-doer`
+   - Difficulty 1-3 -> use `ca-maestro-junior-dev-doer`
 
 Display routing:
 ```
@@ -596,8 +597,17 @@ Wait for completion. Capture the agent's output.
 
 **NEVER skip this step. NEVER proceed without validation.**
 
+Route the validator based on task type and difficulty:
+
+1. **Type tag check** (takes priority):
+   - Task has `[Type: frontend]` AND difficulty 4+ -> use `ca-maestro-ui-validator`
+
+2. **Difficulty rating** (fallback):
+   - Difficulty 1-5 -> use `ca-maestro-task-validator`
+   - Difficulty 6+ -> use `ca-maestro-senior-task-validator`
+
 Use the Task tool:
-- `subagent_type`: `"ca-maestro-task-validator"`
+- `subagent_type`: The validator determined above
 - Prompt:
 
 ```
@@ -647,9 +657,13 @@ The retry/escalation rules differ based on whether the task has a specialist typ
   - Frontend tasks always go to `ca-maestro-frontend-dev-doer`
   - DevOps tasks always go to `ca-maestro-devops-dev-doer`
 
-- **Untagged tasks** (routed by difficulty):
+- **Untagged tasks, difficulty 4+** (routed by difficulty):
   - Failure count 1: Retry with the same agent
   - Failure count 2: **Escalate to `ca-maestro-senior-dev-doer`** regardless of original difficulty rating
+
+- **Untagged tasks, difficulty 1-3** (junior tier):
+  - Failure count 1: **Escalate to `ca-maestro-dev-doer`**
+  - Failure count 2: **Escalate to `ca-maestro-senior-dev-doer`**
 
 Include the failure context in the retry prompt (validator's reason, what was tried).
 
@@ -820,8 +834,11 @@ All agent calls are serial -- each task is implemented, validated, then the next
 | `[Type: frontend]` (any difficulty) | `ca-maestro-frontend-dev-doer` | Opus |
 | `[Type: devops]` (any difficulty) | `ca-maestro-devops-dev-doer` | Opus |
 | Untagged, difficulty 7-10 | `ca-maestro-senior-dev-doer` | Opus |
-| Untagged, difficulty 1-6 | `ca-maestro-dev-doer` | Sonnet |
-| Validation (always) | `ca-maestro-task-validator` | Sonnet |
+| Untagged, difficulty 4-6 | `ca-maestro-dev-doer` | Sonnet |
+| Untagged, difficulty 1-3 | `ca-maestro-junior-dev-doer` | Haiku |
+| Validation: `[Type: frontend]`, difficulty 4+ | `ca-maestro-ui-validator` | Opus |
+| Validation: difficulty 1-5 | `ca-maestro-task-validator` | Haiku |
+| Validation: difficulty 6+ | `ca-maestro-senior-task-validator` | Sonnet |
 
 ### Escalation Rules
 
@@ -829,7 +846,8 @@ All agent calls are serial -- each task is implemented, validated, then the next
 |-----------|-----------|-----------|-----------|
 | `[Type: frontend]` | Retry with frontend specialist | Retry with frontend specialist | HALT |
 | `[Type: devops]` | Retry with devops specialist | Retry with devops specialist | HALT |
-| Untagged (any difficulty) | Retry with same agent | Escalate to senior-dev-doer | HALT |
+| Untagged, difficulty 4+ | Retry with same agent | Escalate to senior-dev-doer | HALT |
+| Untagged, difficulty 1-3 | Escalate to dev-doer | Escalate to senior-dev-doer | HALT |
 
 ### Token Cost Profile
 
@@ -920,7 +938,7 @@ Claude: Decisions recorded. Proceeding to planning...
 User: Approved.
 
 Claude: Task 1/8: Create user model and migration
-        Routing: ca-maestro-dev-doer (difficulty 3)
+        Routing: ca-maestro-junior-dev-doer (difficulty 3)
         Task 1/8 COMPLETE. Moving to next task...
 
         Task 2/8: Implement JWT token service

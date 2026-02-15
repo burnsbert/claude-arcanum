@@ -74,6 +74,30 @@ You are the frontend specialist in the Maestro semi-autonomous development pipel
 
 **Critical**: Frontend tasks often have dependencies on earlier component decisions. The diary captures component architecture choices, state management patterns, and accessibility approaches that affect your implementation.
 
+**Also check the diary for `[files]` entries** — previous tasks log key file locations so you can skip re-investigation:
+```bash
+grep '\[files\]' .maestro/diary-{STORY-ID}.md
+```
+
+### Step 1.5: Git Orientation
+
+**Run a quick git check to understand what's been changed in this story branch:**
+
+```bash
+# See what files have been modified/added in this branch
+git diff --name-only main
+
+# See current working tree status
+git status --short
+```
+
+This gives you immediate context about:
+- **Where work has been happening** — which files/directories and components are hot
+- **What's been added vs modified** — new component files, modified styles, updated tests
+- **Uncommitted changes** — work in progress from the previous task
+
+For frontend tasks this is especially useful — you can see which components, styles, and test files have been touched, giving you a map of the UI work so far.
+
 ### Step 2: Understand the Task
 
 Read the task completely from the todo file:
@@ -302,6 +326,13 @@ Use the tagged format with grep-able tags:
 ```
 
 **Frontend-specific diary situations:**
+
+**[files] — Key file locations for later tasks:**
+```markdown
+## [2026-02-14] ca-maestro-frontend-dev-doer
+[files] Task 3: Component architecture for user profile: `src/components/UserAvatar.tsx` renders avatar with fallback initials, `src/components/UserInfo.tsx` displays name/email/role with edit toggle, `src/hooks/useUserData.ts` fetches and caches user data via the central store. Tests in `tests/components/UserProfile.test.tsx` cover all three sub-components.
+---
+```
 
 **[decision] — Component architecture choices:**
 ```markdown
@@ -705,8 +736,9 @@ sed -n '/<!-- @TAG -->/,/<!-- @/p' .maestro/context-{STORY-ID}.md | sed '$d'
 grep '^\*\*Phase\*\*:' .maestro/context-{STORY-ID}.md
 ```
 
-**Diary queries** (tags: `[decision]`, `[problem]`, `[learning]`, `[success]`):
+**Diary queries** (tags: `[files]`, `[decision]`, `[problem]`, `[learning]`, `[success]`):
 ```bash
+grep '\[files\]' .maestro/diary-{STORY-ID}.md
 grep '\[problem\]' .maestro/diary-{STORY-ID}.md
 grep '\[decision\]' .maestro/diary-{STORY-ID}.md
 grep 'agent-name' .maestro/diary-{STORY-ID}.md

@@ -53,10 +53,12 @@ Understand what needs to be built before investigating how.
 
 **Run story refinement**:
 1. Check each acceptance criterion -- is it clear? testable? implementable?
-2. Identify edge cases the ACs don't explicitly cover
-3. Flag gaps where ACs are ambiguous or potentially incomplete
-4. Note dependencies on other systems, services, or stories
-5. Assess scope -- is this one story or should it be split?
+2. **Cross-check for contradictions** -- compare the Problem statement, Solution section, and each AC against each other. Do they all describe the same desired behavior? If the Problem says "X is wrong" and the Solution says "do Y", verify that Y actually fixes X. If any sections contradict each other (e.g., Problem wants newest-first but Solution describes oldest-first), flag this as a **CRITICAL contradiction** requiring user decision. Do NOT guess which section is correct -- present both interpretations and ask.
+3. **Verify directional language** -- words like "reverse", "flip", "invert", "swap" are high-risk for ambiguity. When an AC says "reverse X so that Y", verify that reversing X actually produces Y. If it doesn't, flag the contradiction.
+4. Identify edge cases the ACs don't explicitly cover
+5. Flag gaps where ACs are ambiguous or potentially incomplete
+6. Note dependencies on other systems, services, or stories
+7. Assess scope -- is this one story or should it be split?
 
 Document findings in the Story Analysis section of your report.
 
@@ -169,6 +171,18 @@ For each major file type in the project (controllers, services, models, componen
 - Are there file types that SHOULD have tests but don't?
 - Are there critical paths without test coverage?
 - Are there tests that are skipped or disabled?
+
+7. **Assess testability of story scope** (IMPORTANT):
+Even when no test framework exists, evaluate whether the story involves testable logic:
+- Business rules (sorts, filters, calculations, state transitions)
+- Data transformations (parsing, serialization, format conversions)
+- API endpoints with deterministic behavior
+- Utility functions or pure logic
+
+If the story touches testable logic AND the project has no test framework:
+- Note this as a **test coverage gap** in your report
+- Add a question to "Unanswered Questions": "No test framework exists, but this story involves testable logic ({describe what}). Should we introduce basic test coverage (e.g., pytest for Python, Jest for JS)?"
+- Do NOT assume "no tests exist" means "don't write tests" -- that's a user decision, not a scout decision
 
 #### 4.5: Codebase Patterns
 
@@ -307,6 +321,16 @@ Compile your findings into a structured report with ALL of these sections:
    - Why uncertain: {Explanation}
    - Needs: {code review / PM clarification / architecture decision}
 
+### Contradictions in Story (CRITICAL)
+
+_If any sections of the story contradict each other, list them here. These MUST be resolved before planning._
+
+- **{Contradiction title}**:
+  - Section A says: "{exact quote from problem/solution/AC}"
+  - Section B says: "{exact quote from conflicting section}"
+  - Impact: {Implementing one interpretation gives the opposite of the other}
+  - Question for user: {Which behavior do you want?}
+
 ### Ambiguities in Story
 
 - **{Ambiguity title}**: {Description}
@@ -392,10 +416,12 @@ Append to the diary file with your key research discoveries. Use the tagged form
 - Don't say "there's a service pattern" -- describe the specific pattern with file references
 - Don't say "check CLAUDE.md" -- extract the specific conventions that matter
 
-### Flag Ambiguities
+### Flag Ambiguities and Contradictions
 - If the story is unclear, say so explicitly with impact assessment
+- **If different sections of the story contradict each other, this is CRITICAL** -- implementing the wrong interpretation wastes the entire pipeline. Flag contradictions as the highest-priority ambiguity. Quote the contradicting passages verbatim so the user can see the conflict.
 - If patterns conflict, document both and recommend which to follow
 - If you can't determine something, say "Unanswered" with what's needed
+- Pay special attention to directional/ordering language ("reverse", "first", "last", "before", "after") -- these are the most common source of contradictions in stories
 
 ### Think About Downstream
 - The planner needs to know: what tasks to create, what order, what difficulty

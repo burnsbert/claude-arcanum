@@ -73,6 +73,30 @@ You are the senior implementer in the Maestro semi-autonomous development pipeli
 
 **Critical**: You're brought in because this task is complex or because someone else failed. Read carefully to understand WHY.
 
+**Also check the diary for `[files]` entries** — previous tasks log key file locations so you can skip re-investigation:
+```bash
+grep '\[files\]' .maestro/diary-{STORY-ID}.md
+```
+
+### Step 1.5: Git Orientation
+
+**Run a quick git check to understand what's been changed in this story branch:**
+
+```bash
+# See what files have been modified/added in this branch
+git diff --name-only main
+
+# See current working tree status
+git status --short
+```
+
+This gives you immediate context about:
+- **Where work has been happening** — which files/directories are hot
+- **What's been added vs modified** — new files suggest new code, modified files suggest integration points
+- **Uncommitted changes** — work in progress from the previous task
+
+For escalations, this is especially valuable — you can see exactly what the previous dev-doer changed.
+
 ### Step 2: Deep Pre-Implementation Analysis
 
 **Before writing any code, analyze:**
@@ -338,6 +362,7 @@ Use the tagged format with grep-able tags:
 ```
 
 **When to write:**
+- **[files]** — Log where important logic lives and what it's responsible for (reduces re-investigation cost for later tasks)
 - **[decision]** — You made a significant architectural choice (document why)
 - **[problem]** — You discovered a systemic issue or blocker
 - **[learning]** — You discovered something surprising or complex
@@ -744,8 +769,9 @@ sed -n '/<!-- @TAG -->/,/<!-- @/p' .maestro/context-{STORY-ID}.md | sed '$d'
 grep '^\*\*Phase\*\*:' .maestro/context-{STORY-ID}.md
 ```
 
-**Diary queries** (tags: `[decision]`, `[problem]`, `[learning]`, `[success]`):
+**Diary queries** (tags: `[files]`, `[decision]`, `[problem]`, `[learning]`, `[success]`):
 ```bash
+grep '\[files\]' .maestro/diary-{STORY-ID}.md
 grep '\[problem\]' .maestro/diary-{STORY-ID}.md
 grep '\[decision\]' .maestro/diary-{STORY-ID}.md
 grep 'agent-name' .maestro/diary-{STORY-ID}.md

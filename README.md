@@ -74,11 +74,14 @@ Agent-Powered Commands        Agents (Internal)
 /arc-maestro ────────────▶  ca-maestro-scout
                  │            ca-maestro-planner
                  │            ca-maestro-plan-reviewer
+                 │            ca-maestro-junior-dev-doer (Haiku)
                  │            ca-maestro-dev-doer (Sonnet)
                  │            ca-maestro-senior-dev-doer
                  │            ca-maestro-frontend-dev-doer
                  │            ca-maestro-devops-dev-doer
-                 └──────────▶ ca-maestro-task-validator (Sonnet)
+                 │            ca-maestro-task-validator (Haiku)
+                 │            ca-maestro-senior-task-validator (Sonnet)
+                 └──────────▶ ca-maestro-ui-validator (Opus)
 
 /arc-maestro-review ─────▶  ca-maestro-code-review
                  └──────────▶ ca-maestro-code-review-responder
@@ -180,11 +183,14 @@ claude-arcanum/
 │   ├── ca-maestro-scout.md
 │   ├── ca-maestro-planner.md
 │   ├── ca-maestro-plan-reviewer.md
+│   ├── ca-maestro-junior-dev-doer.md
 │   ├── ca-maestro-dev-doer.md
 │   ├── ca-maestro-senior-dev-doer.md
 │   ├── ca-maestro-frontend-dev-doer.md
 │   ├── ca-maestro-devops-dev-doer.md
 │   ├── ca-maestro-task-validator.md
+│   ├── ca-maestro-senior-task-validator.md
+│   ├── ca-maestro-ui-validator.md
 │   ├── ca-maestro-code-review.md
 │   ├── ca-maestro-code-review-responder.md
 │   └── personalities/    # Personality definitions for think-tank
@@ -555,11 +561,14 @@ Each round of the think-tank assigns a random personality to each agent (thinker
 - `ca-maestro-scout` (agent) - Codebase researcher
 - `ca-maestro-planner` (agent) - Task decomposer
 - `ca-maestro-plan-reviewer` (agent) - Quality gate that vets and improves plan
-- `ca-maestro-dev-doer` (agent, Sonnet) - Standard implementer (difficulty 1-6)
+- `ca-maestro-junior-dev-doer` (agent, Haiku) - Junior implementer (difficulty 1-3)
+- `ca-maestro-dev-doer` (agent, Sonnet) - Standard implementer (difficulty 4-6)
 - `ca-maestro-senior-dev-doer` (agent) - Complex task specialist (difficulty 7+)
 - `ca-maestro-frontend-dev-doer` (agent) - UI/UX specialist
 - `ca-maestro-devops-dev-doer` (agent) - Infrastructure specialist
-- `ca-maestro-task-validator` (agent, Sonnet) - Strict pass/fail gate
+- `ca-maestro-task-validator` (agent, Haiku) - Strict pass/fail gate (difficulty 1-5)
+- `ca-maestro-senior-task-validator` (agent, Sonnet) - Strict pass/fail gate (difficulty 6+)
+- `ca-maestro-ui-validator` (agent, Opus) - Visual validation specialist (frontend tasks, difficulty 4+)
 
 **How It Works**:
 
@@ -582,11 +591,14 @@ Maestro executes **Phases 1-7** with continuous execution between user checkpoin
 | `ca-maestro-scout` | Opus | Codebase researcher — analyzes patterns, conventions, test coverage |
 | `ca-maestro-planner` | Opus | Task decomposer — breaks story into tasks with difficulty/type tags |
 | `ca-maestro-plan-reviewer` | Opus | Quality gate — vets and improves plan before user sees it |
-| `ca-maestro-dev-doer` | Sonnet | Standard implementer — handles difficulty 1-6 tasks |
+| `ca-maestro-junior-dev-doer` | Haiku | Junior implementer — handles difficulty 1-3 tasks |
+| `ca-maestro-dev-doer` | Sonnet | Standard implementer — handles difficulty 4-6 tasks |
 | `ca-maestro-senior-dev-doer` | Opus | Complex task specialist — handles difficulty 7+ and escalations |
 | `ca-maestro-frontend-dev-doer` | Opus | UI/UX specialist — handles `[Type: frontend]` tasks at any difficulty |
 | `ca-maestro-devops-dev-doer` | Opus | Infrastructure specialist — handles `[Type: devops]` tasks at any difficulty |
-| `ca-maestro-task-validator` | Sonnet | Strict pass/fail gate — returns COMPLETE or INCOMPLETE |
+| `ca-maestro-task-validator` | Haiku | Strict pass/fail gate — validates difficulty 1-5 tasks |
+| `ca-maestro-senior-task-validator` | Sonnet | Strict pass/fail gate — validates difficulty 6+ tasks |
+| `ca-maestro-ui-validator` | Opus | Visual validation specialist — browser screenshots + interaction testing for frontend tasks |
 
 **Routing Rules**:
 
@@ -598,11 +610,13 @@ Tasks are routed using two-dimensional routing:
 
 2. **Difficulty rating** (fallback for untagged tasks):
    - Difficulty 7+ → `ca-maestro-senior-dev-doer`
-   - Difficulty 1-6 → `ca-maestro-dev-doer`
+   - Difficulty 4-6 → `ca-maestro-dev-doer`
+   - Difficulty 1-3 → `ca-maestro-junior-dev-doer`
 
 **Failure Handling**:
 - Specialist tasks (frontend/devops) retry with the same specialist (no cross-agent escalation)
-- Untagged tasks escalate from dev-doer to senior-dev-doer after 2 failures
+- Junior tasks (difficulty 1-3) escalate: junior → dev-doer → senior-dev-doer
+- Standard tasks (difficulty 4+) escalate: same agent → senior-dev-doer
 - Development halts after 3 failures on any single task — user decides next step
 
 **File Organization**:

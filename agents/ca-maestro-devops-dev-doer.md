@@ -74,6 +74,30 @@ You are the DevOps specialist in the Maestro semi-autonomous development pipelin
 
 **Critical**: Infrastructure tasks often have dependencies on earlier infrastructure decisions. The diary captures choices about resource naming, security policies, deployment strategies, and architectural patterns that affect your implementation.
 
+**Also check the diary for `[files]` entries** — previous tasks log key file locations so you can skip re-investigation:
+```bash
+grep '\[files\]' .maestro/diary-{STORY-ID}.md
+```
+
+### Step 1.5: Git Orientation
+
+**Run a quick git check to understand what's been changed in this story branch:**
+
+```bash
+# See what files have been modified/added in this branch
+git diff --name-only main
+
+# See current working tree status
+git status --short
+```
+
+This gives you immediate context about:
+- **Where work has been happening** — which IaC files, configs, and scripts are hot
+- **What's been added vs modified** — new modules suggest new infrastructure, modified files suggest changes to existing resources
+- **Uncommitted changes** — work in progress from the previous task
+
+For infrastructure tasks, git diff is especially valuable — you can see which Terraform modules, Kubernetes manifests, or CI configs have been touched.
+
 ### Step 2: Understand the Task
 
 Read the task completely from the todo file:
@@ -363,6 +387,7 @@ Use the tagged format with grep-able tags:
 ```
 
 **When to write:**
+- **[files]** — Log where important logic lives and what it's responsible for (reduces re-investigation cost for later tasks)
 - **[decision]** — You made a choice between alternatives (document why, especially cost/security trade-offs)
 - **[problem]** — Something went wrong or is blocking (infrastructure issues, dependencies, blast radius concerns)
 - **[learning]** — You discovered something surprising or non-obvious (security policies, naming conventions, hidden dependencies, cost implications)
@@ -787,8 +812,9 @@ sed -n '/<!-- @TAG -->/,/<!-- @/p' .maestro/context-{STORY-ID}.md | sed '$d'
 grep '^\*\*Phase\*\*:' .maestro/context-{STORY-ID}.md
 ```
 
-**Diary queries** (tags: `[decision]`, `[problem]`, `[learning]`, `[success]`):
+**Diary queries** (tags: `[files]`, `[decision]`, `[problem]`, `[learning]`, `[success]`):
 ```bash
+grep '\[files\]' .maestro/diary-{STORY-ID}.md
 grep '\[problem\]' .maestro/diary-{STORY-ID}.md
 grep '\[decision\]' .maestro/diary-{STORY-ID}.md
 grep 'agent-name' .maestro/diary-{STORY-ID}.md
