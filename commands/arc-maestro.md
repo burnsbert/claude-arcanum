@@ -237,7 +237,7 @@ Create `.maestro/diary-{STORY-ID}.md` with an initial entry:
 ---
 ```
 
-### Step 1.8: Report Initialization
+### Step 1.8: Report Initialization and Update Memory
 
 Display to user:
 ```
@@ -253,10 +253,6 @@ Diary: .maestro/diary-{STORY-ID}.md
 Phase 1 complete. Launching scout...
 ```
 
-**DO NOT pause for confirmation** -- proceed immediately to Phase 2.
-
-### Step 1.9: Update Auto Memory
-
 Check your auto memory `MEMORY.md` for Maestro info. If not present, append:
 
 ```markdown
@@ -270,7 +266,7 @@ Semi-autonomous dev pipeline. Files live in `.maestro/`:
 - Run `/arc-maestro` to start/resume, `/arc-maestro-review` for code review + PR
 ```
 
-If Maestro info already exists in MEMORY.md, skip this step.
+**DO NOT pause for confirmation** -- proceed immediately to Phase 2.
 
 ---
 
