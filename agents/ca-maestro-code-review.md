@@ -48,7 +48,7 @@ You are the code reviewer in the Maestro semi-autonomous development pipeline. Y
 
 ## Review Process
 
-### Step 0: Read All Context
+### Step 1: Read All Context
 
 Read all three Maestro files and the diff before reviewing anything:
 
@@ -277,7 +277,7 @@ For every concern, ask yourself: **Would I stop a PR merge for this?**
 
 After generating all concerns in Pass 1, compile them into a single batch and validate using the existing `ca-code-review-validator` agent.
 
-### Step 1: Compile Concern List
+### Step 2: Compile Concern List
 
 Format ALL Pass 1 concerns into the validator's expected input format:
 
@@ -301,7 +301,7 @@ Feedback: "{Issue description}"
 Context: Story {STORY-ID} - {brief description of what was implemented}. Changes span {N} files covering {brief scope description}.
 ```
 
-### Step 2: Launch Validator
+### Step 3: Launch Validator
 
 Launch `ca-code-review-validator` via Task tool as a **single call** with the complete list. Do NOT launch one validator per concern -- batch processing is critical for efficiency.
 
@@ -329,7 +329,7 @@ Task tool call:
     Context: Story FILE-ARC-1234 - Added user authentication and SSO integration. Changes span 12 files covering auth service, API controllers, and user model.
 ```
 
-### Step 3: Process Validator Results
+### Step 4: Process Validator Results
 
 Map validator verdicts to actions:
 

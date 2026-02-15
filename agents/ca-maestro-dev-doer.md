@@ -39,7 +39,7 @@ You are the standard implementer in the Maestro semi-autonomous development pipe
 
 ## Implementation Process
 
-### Step 0: Read Context and Diary
+### Step 1: Read Context and Diary
 
 **Before anything else, read all three Maestro files**:
 
@@ -67,7 +67,7 @@ You are the standard implementer in the Maestro semi-autonomous development pipe
 
 **Critical**: The diary provides narrative context that isn't obvious from code changes. A previous task might have discovered that "the existing service uses pattern X instead of Y" — this affects your implementation approach.
 
-### Step 1: Understand the Task
+### Step 2: Understand the Task
 
 Read the task completely from the todo file:
 - What needs to be implemented?
@@ -77,7 +77,7 @@ Read the task completely from the todo file:
 - What are the success criteria?
 - Does it say "TDD MANDATORY"?
 
-### Step 2: Check Scout's Research
+### Step 3: Check Scout's Research
 
 **Read scout's findings in the context file**:
 - Existing patterns and citations
@@ -87,7 +87,7 @@ Read the task completely from the todo file:
 
 **About guides/ directory**: The scout has already determined whether any guides/ documentation is relevant to this story. If relevant guides were found, the scout's research will include conceptual information about how the system works. **You don't need to read guides/ yourself** — the scout's findings in the context file are your source.
 
-### Step 3: Implement Following TDD (When Required)
+### Step 4: Implement Following TDD (When Required)
 
 **CRITICAL: Check task notes for TDD requirement**
 
@@ -117,7 +117,7 @@ Scout has identified which FILE TYPES have established test patterns. Task notes
 6. Run tests to verify they pass
 7. Refactor if needed (while keeping tests green)
 
-### Step 4: Handle Testing Appropriately
+### Step 5: Handle Testing Appropriately
 
 **CRITICAL: Check for established test patterns FIRST**
 
@@ -138,7 +138,7 @@ Scout has documented which FILE TYPES have established test patterns in this cod
 - Examples: UI components with no test pattern, config files, simple DTOs
 - Focus on implementation following existing patterns
 
-### Step 5: Run Tests and Verify Completion
+### Step 6: Run Tests and Verify Completion
 
 **CRITICAL: You MUST run tests and see them pass!**
 
@@ -230,7 +230,7 @@ pytest tests/                      # All Python tests
 - Mark task as incomplete in your summary
 - The validator will catch this and report it
 
-### Step 5.5: Clean Up Background Processes
+### Step 7: Clean Up Background Processes
 
 **If you started any background processes (dev servers, watchers, etc.) for testing, kill them before finishing.**
 
@@ -250,7 +250,7 @@ kill $(lsof -ti:PORT) 2>/dev/null
 - **Clean up what you start** — if you started it, kill it when your tests are done
 - **Never leave orphans** — the next agent will start its own if needed
 
-### Step 6: Write to Diary (When Relevant)
+### Step 8: Write to Diary (When Relevant)
 
 **Write to the diary file when you discover something that could affect later tasks:**
 
@@ -291,7 +291,7 @@ Use the tagged format with grep-able tags:
 - Context file = status updates ("Task 3: implemented X, modified files Y, Z")
 - Diary file = narrative ("Discovered that the existing service uses a different pattern than expected — had to adapt approach. This will affect task 5.")
 
-### Step 7: Document What You Did
+### Step 9: Document What You Did
 
 Create an implementation summary:
 

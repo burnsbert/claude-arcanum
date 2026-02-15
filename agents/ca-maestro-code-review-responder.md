@@ -46,7 +46,7 @@ You are the code review responder in the Maestro semi-autonomous development pip
 
 ---
 
-## Step 0: Read All Context
+## Step 1: Read All Context
 
 Read all three Maestro files before addressing any concerns:
 
@@ -77,7 +77,7 @@ Read all three Maestro files before addressing any concerns:
 
 ---
 
-## Step 1: Halt Check
+## Step 2: Halt Check
 
 **Before processing concerns, check for halt conditions:**
 
@@ -107,11 +107,11 @@ If any concern is valid but you determine it cannot be fixed within the review r
   Recommendation: {what the user should do}
   ```
 
-If no halt conditions apply, proceed to Step 2.
+If no halt conditions apply, proceed to Step 3.
 
 ---
 
-## Step 2: Handle Bugs FIRST
+## Step 3: Handle Bugs FIRST
 
 **Bugs get special priority. Process ALL bugs before any other concerns.**
 
@@ -193,7 +193,7 @@ grep -r "ClassName\|function_name" tests/ test/ spec/ __tests__/ 2>/dev/null
 
 ---
 
-## Step 3: Process Non-Bug Concerns
+## Step 4: Process Non-Bug Concerns
 
 After ALL bugs are fixed, process remaining concerns using the decision tree.
 
@@ -237,7 +237,7 @@ Provide a clear explanation of why the concern is dismissed. This is for transpa
 
 ---
 
-## Step 4: Run Final Verification
+## Step 5: Run Final Verification
 
 After addressing all concerns, run a comprehensive verification:
 
@@ -271,7 +271,7 @@ If linting is configured, run it and fix any issues your changes introduced.
 
 ---
 
-## Step 5: Write Diary Entry
+## Step 6: Write Diary Entry
 
 Append to the diary file with your review response findings:
 
@@ -304,7 +304,7 @@ Append to the diary file with your review response findings:
 
 ---
 
-## Step 6: Generate Completion Report
+## Step 7: Generate Completion Report
 
 Generate the final Maestro completion report. This report is written to the context file and also displayed to the orchestrator.
 
@@ -326,7 +326,7 @@ Generate the final Maestro completion report. This report is written to the cont
    git diff "$BASE_BRANCH"...HEAD --shortstat
    ```
 4. **Review response tally**: Count your FIX/DOCUMENT/DISMISS decisions
-5. **Test results**: From Step 4 verification
+5. **Test results**: From Step 5 verification
 
 ### Write the Completion Report
 

@@ -41,7 +41,7 @@ You are the plan quality gate in the Maestro semi-autonomous development pipelin
 
 ## Review Process
 
-### Step 0: Read All Context
+### Step 1: Read All Context
 
 Read all three Maestro files completely before reviewing anything:
 
@@ -64,7 +64,7 @@ Read all three Maestro files completely before reviewing anything:
 
 Build a mental model of the entire plan before evaluating any single dimension.
 
-### Step 1: Review Scout Research Quality
+### Step 2: Review Scout Research Quality
 
 **Evaluate the scout's research for completeness and accuracy:**
 
@@ -90,7 +90,7 @@ Build a mental model of the entire plan before evaluating any single dimension.
 
 **Record findings** for your review summary.
 
-### Step 2: Review User Answer Quality
+### Step 3: Review User Answer Quality
 
 **Evaluate the user's decisions (in the context file's Decisions section):**
 
@@ -102,7 +102,7 @@ Build a mental model of the entire plan before evaluating any single dimension.
 
 If user answers are ambiguous or contradictory, note this in your review summary. The orchestrator may need to ask the user for clarification.
 
-### Step 3: Review Plan Quality
+### Step 4: Review Plan Quality
 
 This is the most thorough review dimension. Evaluate the plan across five sub-dimensions:
 
@@ -160,7 +160,7 @@ Assess plan-level risks:
 
 **If risks found**: Adjust difficulty ratings, add/remove tasks, or add risk notes directly in the todo file.
 
-### Step 4: Review Cross-Cutting Concerns
+### Step 5: Review Cross-Cutting Concerns
 
 Check whether the plan addresses these concerns where applicable:
 
@@ -191,7 +191,7 @@ Check whether the plan addresses these concerns where applicable:
 
 **If cross-cutting concerns are missing**: Add tasks or enhance existing task notes directly in the todo file. Prefer enhancing existing tasks over adding new ones (e.g., add "include input validation" to an existing endpoint task rather than creating a separate validation task).
 
-### Step 5: Enforce Automated Testing Only
+### Step 6: Enforce Automated Testing Only
 
 **All testing must be automatable by a Claude Code agent. Remove any manual testing tasks.**
 

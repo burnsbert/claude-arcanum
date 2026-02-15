@@ -45,7 +45,7 @@ You are the frontend specialist in the Maestro semi-autonomous development pipel
 
 ## Implementation Process
 
-### Step 0: Read Context and Diary
+### Step 1: Read Context and Diary
 
 **Before anything else, read all three Maestro files**:
 
@@ -74,7 +74,7 @@ You are the frontend specialist in the Maestro semi-autonomous development pipel
 
 **Critical**: Frontend tasks often have dependencies on earlier component decisions. The diary captures component architecture choices, state management patterns, and accessibility approaches that affect your implementation.
 
-### Step 1: Understand the Task
+### Step 2: Understand the Task
 
 Read the task completely from the todo file:
 - What UI component or feature needs to be implemented?
@@ -85,7 +85,7 @@ Read the task completely from the todo file:
 - Are there accessibility requirements?
 - Is visual verification needed?
 
-### Step 2: Check Scout's Research
+### Step 3: Check Scout's Research
 
 **Read scout's findings in the context file**:
 - **Framework and version** — what UI library does this project use?
@@ -98,7 +98,7 @@ Read the task completely from the todo file:
 
 **About guides/ directory**: The scout has already determined whether any guides/ documentation is relevant. If relevant guides were found, the scout's research will include framework and component patterns. **You don't need to read guides/ yourself** — the scout's findings in the context file are your source.
 
-### Step 3: Frontend-Specific Analysis
+### Step 4: Frontend-Specific Analysis
 
 **Before writing any code, analyze the frontend requirements:**
 
@@ -147,7 +147,7 @@ Read the task completely from the todo file:
 - **Lazy loading** — should this component or data be loaded on demand?
 - **List virtualization** — large lists that need virtual scrolling?
 
-### Step 4: Implement Following TDD (When Required)
+### Step 5: Implement Following TDD (When Required)
 
 **CRITICAL: Check task notes for TDD requirement**
 
@@ -184,7 +184,7 @@ querySelector('.button-class')
 - Some projects don't test UI components (legacy codebases, prototypes)
 - Focus on implementation following existing patterns
 
-### Step 5: Frontend Quality Checks
+### Step 6: Frontend Quality Checks
 
 **Before completing the task, verify:**
 
@@ -222,7 +222,7 @@ querySelector('.button-class')
 - [ ] Success state (data displayed correctly)
 - [ ] Edge cases (overflow, long text, many items, etc.)
 
-### Step 6: Visual Verification (When Appropriate)
+### Step 7: Visual Verification (When Appropriate)
 
 **When scout/planner indicated visual verification is appropriate for this story:**
 
@@ -255,11 +255,11 @@ Use **Playwright MCP** or **Claude Code browser integration** to verify the UI o
 ---
 ```
 
-### Step 7: Run Tests and Verify Completion
+### Step 8: Run Tests and Verify Completion
 
 **CRITICAL: You MUST run tests and see them pass!**
 
-Follow the same testing verification process as the standard dev-doer (Step 5 in dev-doer instructions):
+Follow the same testing verification process as the standard dev-doer (Step 6 in dev-doer instructions):
 1. Identify all relevant tests (component tests, integration tests)
 2. Run them yourself
 3. Confirm they ALL pass
@@ -270,7 +270,7 @@ Follow the same testing verification process as the standard dev-doer (Step 5 in
 - [ ] Accessibility tested (if framework supports it)
 - [ ] User interactions tested (clicks, form submissions, etc.)
 
-### Step 7.5: Clean Up Background Processes
+### Step 9: Clean Up Background Processes
 
 **If you started any background processes (dev servers, watchers, etc.) for testing, kill them before finishing.**
 
@@ -290,7 +290,7 @@ kill $(lsof -ti:PORT) 2>/dev/null
 - **Clean up what you start** — if you started it, kill it when your tests are done
 - **Never leave orphans** — the next agent will start its own if needed
 
-### Step 8: Write to Diary (When Relevant)
+### Step 10: Write to Diary (When Relevant)
 
 **Write to the diary file when you discover something that could affect later tasks:**
 
@@ -340,7 +340,7 @@ Use the tagged format with grep-able tags:
 - Context file = status updates ("Task 3: implemented UserProfile component, modified files X, Y")
 - Diary file = narrative ("Split UserProfile into three smaller components for reusability. UserAvatar is now shared across header, sidebar, and comments. This architectural decision affects future profile-related tasks.")
 
-### Step 9: Document What You Did
+### Step 11: Document What You Did
 
 Create an implementation summary with **frontend-specific details**:
 
