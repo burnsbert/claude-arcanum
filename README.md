@@ -33,6 +33,10 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 **Creative Ideation** (Multi-round idea generation and ranking)
 - **arc-think-tank** - Creative ideation workflow that generates, critiques, evolves, and ranks ideas toward a goal. 5 rounds of thinking (Opus+ultrathink), vetting (Sonnet), and riffing (Opus) — each round with randomly assigned personalities that change how agents reason, evaluate, and evolve ideas. Final judge (Opus, personality-neutral) produces a ranked report. 17 serial agent calls, comparable to arc-war-room in scope.
 
+**Semi-Autonomous Development** (Story-to-PR pipeline)
+- **arc-maestro** - 10-phase pipeline from story to implementation. Researches codebase, creates plan, implements tasks with specialist routing, validates each task. Handles Jira tickets or local story files.
+- **arc-maestro-review** - Code review and PR creation. Two-pass review with enhanced bug-finding, fixes bugs with regression tests, creates PR.
+
 **Skills** (Conversational tools)
 - **rubber-duck** - A trusted peer developer for talking through technical ideas, designs, and plans. Follows a structured conversation flow: listen and understand, explore together, strengthen the idea, and summarize. Asks one question at a time, uses codebase research to verify claims, and gives honest feedback without being a rubber stamp or a blocker.
 
@@ -67,6 +71,18 @@ Agent-Powered Commands        Agents (Internal)
                  │            ca-think-tank-riffer (×5 serial)
                  └──────────▶ ca-think-tank-judge (final report)
 
+/arc-maestro ────────────▶  ca-maestro-scout
+                 │            ca-maestro-planner
+                 │            ca-maestro-plan-reviewer
+                 │            ca-maestro-dev-doer (Sonnet)
+                 │            ca-maestro-senior-dev-doer
+                 │            ca-maestro-frontend-dev-doer
+                 │            ca-maestro-devops-dev-doer
+                 └──────────▶ ca-maestro-task-validator (Sonnet)
+
+/arc-maestro-review ─────▶  ca-maestro-code-review
+                 └──────────▶ ca-maestro-code-review-responder
+
 User-Invokable Agents         Use Cases
 ─────────────────────────     ───────────────────
 arc-root-cause-analyzer  ──▶  Forensic bug analysis
@@ -75,6 +91,13 @@ arc-technical-writer ────────▶ Technical documentation creatio
 ```
 
 ## Quick Start
+
+**Need to implement a story?**
+```
+/arc-maestro JIRA-123
+/arc-maestro ./stories/my-story.md
+```
+Researches, plans, implements, and validates. Review with `/arc-maestro-review`.
 
 **Stuck on a bug?**
 ```
@@ -137,6 +160,8 @@ claude-arcanum/
 │   ├── arc-pr-respond.md
 │   ├── arc-research-team.md
 │   ├── arc-war-room.md
+│   ├── arc-maestro.md
+│   ├── arc-maestro-review.md
 │   └── ca-store-problem-context.md
 ├── agents/           # Custom agent definitions
 │   ├── arc-root-cause-analyzer.md
@@ -152,6 +177,16 @@ claude-arcanum/
 │   ├── ca-research-agent.md
 │   ├── ca-research-synthesizer.md
 │   ├── ca-war-room-investigator.md
+│   ├── ca-maestro-scout.md
+│   ├── ca-maestro-planner.md
+│   ├── ca-maestro-plan-reviewer.md
+│   ├── ca-maestro-dev-doer.md
+│   ├── ca-maestro-senior-dev-doer.md
+│   ├── ca-maestro-frontend-dev-doer.md
+│   ├── ca-maestro-devops-dev-doer.md
+│   ├── ca-maestro-task-validator.md
+│   ├── ca-maestro-code-review.md
+│   ├── ca-maestro-code-review-responder.md
 │   └── personalities/    # Personality definitions for think-tank
 │       ├── contrarian.md
 │       ├── pragmatist.md
@@ -509,6 +544,217 @@ Each round of the think-tank assigns a random personality to each agent (thinker
 - No consecutive repeats — each agent gets a different personality than it had in the previous round
 - Logged per round in the task context file for resume support
 - Judge remains personality-neutral — synthesizes all ideas on their merits regardless of source personality
+
+---
+
+#### `/arc-maestro` - Semi-Autonomous Development Pipeline
+
+**Purpose**: 10-phase pipeline that takes a story (from Jira or a local file) and drives it from research through implementation. Researches codebase, creates plan, implements tasks with specialist routing, validates each task, and prepares for code review.
+
+**Powered by** (in execution order):
+- `ca-maestro-scout` (agent) - Codebase researcher
+- `ca-maestro-planner` (agent) - Task decomposer
+- `ca-maestro-plan-reviewer` (agent) - Quality gate that vets and improves plan
+- `ca-maestro-dev-doer` (agent, Sonnet) - Standard implementer (difficulty 1-6)
+- `ca-maestro-senior-dev-doer` (agent) - Complex task specialist (difficulty 7+)
+- `ca-maestro-frontend-dev-doer` (agent) - UI/UX specialist
+- `ca-maestro-devops-dev-doer` (agent) - Infrastructure specialist
+- `ca-maestro-task-validator` (agent, Sonnet) - Strict pass/fail gate
+
+**How It Works**:
+
+Maestro executes **Phases 1-7** with continuous execution between user checkpoints:
+
+| Phase | Name | What Happens | User Checkpoint? |
+|-------|------|-------------|------------------|
+| 1 | Initialize | Fetch story, create branch, create context files | No |
+| 2 | Scout | Research codebase patterns, conventions, test coverage | No |
+| 3 | Questions | Present scout's ambiguities to user for answers | Yes (if ambiguities exist) |
+| 4 | Plan | Break story into tasks with difficulty/type/TDD structure | No |
+| 5 | Review | Quality gate: plan-reviewer vets and improves the plan | No |
+| 6 | Approve | User reviews and approves the plan | Yes |
+| 7 | Develop | Implement tasks one-by-one with mandatory validation | Yes (only on blocker) |
+
+**Agent Roster**:
+
+| Agent | Model | Role |
+|-------|-------|------|
+| `ca-maestro-scout` | Opus | Codebase researcher — analyzes patterns, conventions, test coverage |
+| `ca-maestro-planner` | Opus | Task decomposer — breaks story into tasks with difficulty/type tags |
+| `ca-maestro-plan-reviewer` | Opus | Quality gate — vets and improves plan before user sees it |
+| `ca-maestro-dev-doer` | Sonnet | Standard implementer — handles difficulty 1-6 tasks |
+| `ca-maestro-senior-dev-doer` | Opus | Complex task specialist — handles difficulty 7+ and escalations |
+| `ca-maestro-frontend-dev-doer` | Opus | UI/UX specialist — handles `[Type: frontend]` tasks at any difficulty |
+| `ca-maestro-devops-dev-doer` | Opus | Infrastructure specialist — handles `[Type: devops]` tasks at any difficulty |
+| `ca-maestro-task-validator` | Sonnet | Strict pass/fail gate — returns COMPLETE or INCOMPLETE |
+
+**Routing Rules**:
+
+Tasks are routed using two-dimensional routing:
+
+1. **Type tag** (checked first):
+   - `[Type: frontend]` → `ca-maestro-frontend-dev-doer` (regardless of difficulty)
+   - `[Type: devops]` → `ca-maestro-devops-dev-doer` (regardless of difficulty)
+
+2. **Difficulty rating** (fallback for untagged tasks):
+   - Difficulty 7+ → `ca-maestro-senior-dev-doer`
+   - Difficulty 1-6 → `ca-maestro-dev-doer`
+
+**Failure Handling**:
+- Specialist tasks (frontend/devops) retry with the same specialist (no cross-agent escalation)
+- Untagged tasks escalate from dev-doer to senior-dev-doer after 2 failures
+- Development halts after 3 failures on any single task — user decides next step
+
+**File Organization**:
+
+Maestro creates a `.maestro/` directory at project root with three files per story:
+
+```
+.maestro/
+  context-{STORY-ID}.md    # Status dashboard — where things stand now
+  todo-{STORY-ID}.md       # Task list with difficulty/type tags
+  diary-{STORY-ID}.md      # Narrative log — how we got here
+  demo/                    # Demo artifacts (if frontend tasks produce them)
+```
+
+**Context File**: Single source of truth. Contains Story Details, Current Status, Research Findings, Task Progress, Agent Outputs, Blockers, Decisions.
+
+**Diary File**: Narrative log of discoveries, decisions, problems, and successes. Agents read before starting work and write when they discover something that could affect later work. Uses grep-able tags: `[decision]`, `[problem]`, `[learning]`, `[success]`.
+
+**Todo File**: Task list created by planner with difficulty ratings, type tags, implementation notes, and success criteria.
+
+**Resume Capability**:
+
+Maestro can resume from where it left off. It reads the "Current Status" section of the context file to determine which phase to resume from. If no context file exists, starts fresh.
+
+**Visual Verification**:
+
+For stories with UI components, Maestro can use browser automation (Playwright MCP or Claude Code browser integration) during Phase 7 to verify that implemented UI actually looks and interacts correctly. If problems are found, new fix tasks are created automatically.
+
+**Usage**:
+```bash
+# Jira ticket
+/arc-maestro JIRA-123
+
+# File-based story
+/arc-maestro ./stories/my-story.md
+/arc-maestro .stories/implement-auth.md
+
+# Resume interrupted session (reads context file)
+/arc-maestro JIRA-123
+```
+
+**Example Flow**:
+```
+User: /arc-maestro JIRA-456
+
+Phase 1: Initialize
+✓ Fetched story from Jira
+✓ Created branch: feature/JIRA-456-add-export
+✓ Created .maestro/ directory with context, diary, todo files
+
+Phase 2: Scout
+✓ Researched codebase patterns
+✓ Analyzed test coverage
+✓ Documented findings in context file
+
+Phase 3: Questions (if needed)
+? Scout has 2 ambiguities — need your input
+
+Phase 4: Plan
+✓ Created 12-task plan with difficulty ratings
+
+Phase 5: Review
+✓ Plan-reviewer improved plan (added security tasks, fixed TDD requirements)
+
+Phase 6: Approve
+[Presents plan to user]
+? Approve plan? (yes/no/changes)
+
+Phase 7: Develop
+✓ Task 1/12: [dev-doer] Create user model [Difficulty: 3/10] — COMPLETE
+✓ Task 2/12: [dev-doer] Add validation layer [Difficulty: 4/10] — COMPLETE
+✓ Task 3/12: [senior-dev-doer] Implement OAuth flow [Difficulty: 8/10] — COMPLETE
+...
+✓ All tasks complete
+✓ Staged changes
+✓ Committed: "JIRA-456: Add export functionality"
+✓ Pushed to remote
+
+Ready for code review. Run: /arc-maestro-review JIRA-456
+```
+
+---
+
+#### `/arc-maestro-review` - Code Review and PR Creation
+
+**Purpose**: Executes the final 3 phases of the Maestro pipeline — code review, bug fixes with regression tests, and PR creation. Always starts fresh from Phase 8.
+
+**Powered by** (in execution order):
+- `ca-maestro-code-review` (agent) - Two-pass reviewer with enhanced bug-finding
+- `ca-maestro-code-review-responder` (agent) - Addresses vetted concerns, fixes bugs
+- `ca-code-review-validator` (agent, existing) - Batch validates review feedback items
+
+**How It Works**:
+
+Maestro-review executes **Phases 8-10**:
+
+| Phase | Name | What Happens |
+|-------|------|-------------|
+| 8 | Code Review | Two-pass review: generate concerns then batch-vet |
+| 9 | Respond | Fix bugs with regression tests, address other concerns |
+| 10 | Complete | Commit review fixes, push, create PR |
+
+**Phase 8 — Code Review**:
+- **Pass 1**: Generate concerns across all dimensions (testing, data layer, performance, bugs, security, frontend, code quality, integration)
+- **Enhanced bug-finding**: Executable failure paths, tri-state logic detection, framework contract verification, boolean expression substitution
+- **Line number verification**: Read actual files at cited lines, quote actual code
+- **Pass 2**: Batch validate all concerns via `ca-code-review-validator`, categorize as KEEP/REMOVE/CLARIFY
+
+**Phase 9 — Respond**:
+- **Bugs first**: Understand failure path, implement minimal fix, add regression test (if code has test coverage)
+- **Other concerns**: Process via decision tree (critical → FIX, objectively wrong → FIX, quick fix → FIX, time-consuming → DOCUMENT, out-of-scope → DOCUMENT, style preference → DISMISS)
+- **Final verification**: All tests pass, no skipped tests, linting clean
+
+**Phase 10 — Complete**:
+- Commit review fixes
+- Push to remote
+- Create PR via `gh pr create` with generated summary and test plan
+- Display PR URL
+
+**Usage**:
+```bash
+# Explicit story ID
+/arc-maestro-review JIRA-456
+
+# Auto-detect (uses most recent context file)
+/arc-maestro-review
+```
+
+**Example Flow**:
+```
+User: /arc-maestro-review JIRA-456
+
+Phase 8: Code Review
+✓ Pass 1: Generated 8 concerns
+✓ Pass 2: Validated concerns (5 KEEP, 2 REMOVE, 1 CLARIFY)
+✓ Stored vetted review in context file
+
+Phase 9: Respond
+✓ BUG 1: Fixed null pointer in export logic (added regression test)
+✓ BUG 2: Fixed race condition in async handler (added regression test)
+✓ Concern 3: Refactored error handling (material improvement)
+✓ Concern 4: Documented performance consideration (out of scope for this PR)
+✓ Concern 5: Dismissed style preference
+✓ All tests pass (124 passed, 0 skipped)
+
+Phase 10: Complete
+✓ Committed: "JIRA-456: Address code review feedback"
+✓ Pushed to feature/JIRA-456-add-export
+✓ Created PR: https://github.com/owner/repo/pull/789
+
+Ready for human review!
+```
 
 ---
 
