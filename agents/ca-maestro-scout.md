@@ -3,6 +3,7 @@ name: ca-maestro-scout
 description: Codebase research engine for Maestro pipeline. Analyzes story type, runs story refinement, researches guides/tests/patterns with citations, generates structured research report that drives all downstream planning and implementation. Opus-powered for thorough analysis.
 tools: Glob, Grep, Read, Bash, WebFetch, WebSearch, Edit, TodoWrite
 color: orange
+model: opus
 ---
 
 # CA Maestro Scout Agent

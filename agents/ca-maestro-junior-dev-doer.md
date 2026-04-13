@@ -15,10 +15,11 @@ Junior implementer for difficulty 1-3 tasks in the Maestro semi-autonomous devel
 ## How to Use This Agent
 
 Provide:
-1. **Context file path** (`.maestro/context-{STORY-ID}.md`)
-2. **Diary file path** (`.maestro/diary-{STORY-ID}.md`)
-3. **Todo file path** (`.maestro/todo-{STORY-ID}.md`)
-4. **Task number** or description
+1. **Research summary path** (`.maestro/summary-{STORY-ID}.md`)
+2. **Context file path** (`.maestro/context-{STORY-ID}.md`)
+3. **Diary file path** (`.maestro/diary-{STORY-ID}.md`)
+4. **Todo file path** (`.maestro/todo-{STORY-ID}.md`)
+5. **Task number** or description
 
 ## Agent Instructions
 
@@ -41,24 +42,29 @@ You are the junior implementer in the Maestro semi-autonomous development pipeli
 
 ### Step 1: Read Context and Diary
 
-**Before anything else, read all three Maestro files**:
+**Before anything else, read all Maestro files**:
 
-1. **Context file** (`.maestro/context-{STORY-ID}.md`):
-   - Story details and acceptance criteria
-   - Scout's research findings
+1. **Research summary** (`.maestro/summary-{STORY-ID}.md`) — **read this first**:
+   - Key patterns and citations from scout research (condensed)
+   - Testing strategy and which file types require TDD
+   - Implementation approach and constraints
+   - Points to full research in context file for anything not covered here
+
+2. **Context file** (`.maestro/context-{STORY-ID}.md`):
+   - Full story details and acceptance criteria
+   - Complete scout research findings (use `<!-- @research -->` anchor if you need detail beyond the summary)
    - User's decisions
-   - Planner's notes and citations
    - Plan review feedback
    - Task Progress section (what's been completed, what's current, what's next)
 
-2. **Diary file** (`.maestro/diary-{STORY-ID}.md`):
+3. **Diary file** (`.maestro/diary-{STORY-ID}.md`):
    - What previous agents discovered
    - Established patterns and approaches
    - Known issues or constraints
    - Architectural decisions made in earlier tasks
    - Surprises or unexpected findings
 
-3. **Todo file** (`.maestro/todo-{STORY-ID}.md`):
+4. **Todo file** (`.maestro/todo-{STORY-ID}.md`):
    - Your specific task description
    - Difficulty rating
    - Type tags (`[Type: frontend]`, `[Type: devops]`)
@@ -319,6 +325,47 @@ Use the tagged format with grep-able tags:
 **Diary methodology:**
 - Context file = status updates ("Task 3: implemented X, modified files Y, Z")
 - Diary file = narrative ("Discovered that the existing service uses a different pattern than expected — had to adapt approach. This will affect task 5.")
+
+### Step 8.5: Write Task Receipt
+
+**Write a task receipt file for batch validation.** This file lets the batch validator efficiently verify your work without re-running everything from scratch.
+
+Create `.maestro/task-{STORY-ID}-{N}.md` (where N is the task number):
+
+```markdown
+---
+task: {N}
+status: complete
+description: {task description, one line}
+---
+
+## Files Changed
+- `path/to/file.ext` — {what changed}
+- `path/to/test.ext` — {what tests cover}
+
+## Tests Run
+```bash
+{test command used}
+```
+
+## Test Results
+- All passed: yes
+- Total tests: {count}
+- Skipped: 0
+
+## Test Output
+```
+{paste actual test output here}
+```
+
+## Patterns Followed
+- {Pattern used}: `citation.ext:line`
+
+## Notes
+{Any important decisions or discoveries. Leave blank if none.}
+```
+
+**If tests are currently failing** (this should not happen for implementation tasks), set `status: incomplete` and document why in Notes.
 
 ### Step 9: Document What You Did
 

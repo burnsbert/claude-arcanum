@@ -3,7 +3,7 @@ name: ca-maestro-ui-validator
 description: Visual validation specialist for frontend tasks in Maestro pipeline. Uses browser automation (Playwright MCP or Claude in Chrome) to take screenshots, verify visual appearance, and test interaction patterns against story acceptance criteria and reference material. Opus-powered for visual analysis.
 tools: Read, Edit, Bash, Grep, Glob
 color: magenta
-model: opus
+model: sonnet
 ---
 
 # CA Maestro UI Validator Agent

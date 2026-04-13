@@ -89,9 +89,10 @@ ls .maestro/context-{STORY-ID}.md 2>/dev/null
    - "Phase 5: Review" -> Phase 5
    - "Phase 6: Approve" -> Phase 6
    - "Phase 7: Develop" -> Phase 7 (pick up from the current/next uncompleted task)
+     **Restore state**: Read `.maestro/state-{STORY-ID}.json` if it exists. Use it to restore `current_task_index`, `failure_counts`, and `deferred_tasks`. Then scan the todo file from task `current_task_index` onward for the first task still marked `- [ ]`. If `current_task_index` already points to a `- [x]` task (state was incremented right before the crash), advance to the next `- [ ]` task. If the state file doesn't exist (older session), fall back: tasks marked `- [x]` with a receipt file but NOT listed in the context file's "Completed Tasks" section were deferred and never batch-validated — add them back to `deferred_tasks`.
 6. If **start fresh**: Delete existing Maestro files for this story:
    ```bash
-   rm -f .maestro/context-{STORY-ID}.md .maestro/diary-{STORY-ID}.md .maestro/todo-{STORY-ID}.md
+   rm -f .maestro/context-{STORY-ID}.md .maestro/diary-{STORY-ID}.md .maestro/todo-{STORY-ID}.md .maestro/summary-{STORY-ID}.md .maestro/task-{STORY-ID}-*.md .maestro/state-{STORY-ID}.json
    ```
    Then continue with Step 1.3.
 
@@ -318,7 +319,47 @@ Read the updated context file. Check the Research Findings section for:
 If any exist -> proceed to Phase 3.
 If none -> skip Phase 3, proceed directly to Phase 4.
 
-### Step 2.4: Display Progress
+### Step 2.4: Generate Research Summary
+
+Read the Research Findings section from the context file and condense it into `.maestro/summary-{STORY-ID}.md`. This file is the primary research reference for all dev-doer agents — it saves them from reading the full context file every time.
+
+```bash
+sed -n '/<!-- @research -->/,/<!-- @/p' .maestro/context-{STORY-ID}.md | sed '$d'
+```
+
+Write a condensed summary (~50 lines):
+
+```markdown
+# Research Summary: {STORY-ID}
+
+## Story Type
+{FE-only / BE-only / Full-stack / Bug fix}
+
+## Key Patterns
+- {Pattern 1}: `file.ext:line` — {brief description}
+- {Pattern 2}: `file.ext:line` — {brief description}
+
+## Testing Strategy
+- **File types WITH test patterns** (TDD mandatory): {list}
+- **File types WITHOUT test patterns**: {list}
+- **Test command**: {e.g., vendor/bin/phpunit, npm test}
+
+## Implementation Approach
+{3-5 bullet points summarizing the recommended approach}
+
+## Key Citations
+- {Most important file references dev-doers will need}
+
+## Constraints & Gotchas
+- {Important constraints or warnings from scout research}
+
+## User Decisions
+{Decisions recorded in Phase 3, or "None" if Phase 3 was skipped}
+
+_Full research: `.maestro/context-{STORY-ID}.md` — use `<!-- @research -->` section or grep for details not covered here_
+```
+
+### Step 2.5: Display Progress
 
 ```
 Phase 2 complete. Scout research done.
@@ -372,6 +413,9 @@ For each answer:
    [decision] User answered scout questions: {brief summary of decisions}.
    ---
    ```
+3. Update the **User Decisions** section of `.maestro/summary-{STORY-ID}.md`:
+   - Replace the placeholder with the actual decisions (same format as recorded in the context file)
+   - This ensures dev-doers reading the summary first see the correct decisions
 
 ### Step 3.4: Update Context and Proceed
 
@@ -540,8 +584,17 @@ Read `.maestro/todo-{STORY-ID}.md`. Extract all tasks (lines matching `- [ ]` ch
 
 Track:
 - `total_tasks`: Total number of tasks
-- `current_task_index`: Which task is being worked on
+- `current_task_index`: 1-based position of the task currently being executed (or about to execute). Updated to N+1 only after a task's completion diary entry is written — so a mid-task crash always resumes at the correct task.
 - `failure_counts`: Map of task index to number of failures (starts at 0)
+- `deferred_tasks`: List of tasks deferred to batch validation `{task_number, description}` (starts empty)
+
+Note: `task_number`, `N`, and `current_task_index` are used interchangeably throughout Phase 7 — all refer to the 1-based sequential position of a task in the todo file. `current_task_index` is the authoritative variable name for in-memory tracking; `N` appears in file path templates; `task_number` appears in the `deferred_tasks` array entries.
+
+After parsing, write the initial state file using the Write tool (substitute actual computed integer values):
+
+```json
+{"current_task_index": 1, "total_tasks": {TOTAL_TASKS_COUNT}, "failure_counts": {}, "deferred_tasks": []}
+```
 
 ### Step 7.3: Task Execution Loop
 
@@ -583,28 +636,39 @@ Implement task {current_task_index} of {total_tasks} for story {STORY-ID}.
 
 Task: {full task description including notes}
 
+Research summary: .maestro/summary-{STORY-ID}.md
 Context file: .maestro/context-{STORY-ID}.md
 Diary file: .maestro/diary-{STORY-ID}.md
 Todo file: .maestro/todo-{STORY-ID}.md
 
-Read the context file for story details, research findings, and completed task history. Read the diary for discoveries from earlier tasks. Implement this single task following scout research patterns and citations. Write an implementation summary when complete. Update the diary if you discover anything that could affect later tasks.
+Read the research summary first for key patterns and citations. Read the context file for full story details and completed task history. Read the diary for discoveries from earlier tasks. Implement this single task following scout research patterns and citations. When complete, write your implementation summary to `.maestro/task-{STORY-ID}-{N}.md` (include: what you built, test commands run, test output, files changed). Update the diary if you discover anything that could affect later tasks.
 {If this is an escalation: "ESCALATION: This task previously failed {N} times. Previous failure reason: {reason}. Address the ROOT CAUSE, not symptoms."}
 ```
 
-Wait for completion. Capture the agent's output.
+Wait for completion. The agent writes its receipt to `.maestro/task-{STORY-ID}-{N}.md`.
 
 #### D. Mandatory Validation
 
-**NEVER skip this step. NEVER proceed without validation.**
+**NEVER skip per-task validation for difficulty 4+ and specialist tasks.**
 
-Route the validator based on task type and difficulty:
+**Batch Deferral** (untagged difficulty 1-3 tasks only):
+- If task has **no type tag** AND **difficulty 1-3**:
+  - Add to `deferred_tasks`: `{task_number, description}` (receipt at `.maestro/task-{STORY-ID}-{N}.md`)
+  - Mark `- [x]` in todo file (optimistic; batch validator verifies at end)
+  - Update state file: increment `current_task_index`, add entry to `deferred_tasks` array
+  - Display: `Task {N}/{total} deferred to batch validation.`
+  - **Skip per-task validation. Proceed to next task.**
+
+**Per-task validator routing** (all specialist-tagged tasks and difficulty 4+):
 
 1. **Type tag check** (takes priority):
    - Task has `[Type: frontend]` AND difficulty 4+ -> use `ca-maestro-ui-validator`
+   - Task has `[Type: frontend]` AND difficulty 1-3 -> use `ca-maestro-task-validator`
+   - Task has `[Type: devops]` (any difficulty) -> falls through to difficulty-based routing below
 
-2. **Difficulty rating** (fallback):
-   - Difficulty 1-5 -> use `ca-maestro-task-validator`
-   - Difficulty 6+ -> use `ca-maestro-senior-task-validator`
+2. **Difficulty rating** (fallback for untagged tasks and devops tasks):
+   - Difficulty 7+ -> use `ca-maestro-senior-task-validator`
+   - Difficulty ≤ 6 -> use `ca-maestro-task-validator`
 
 Use the Task tool:
 - `subagent_type`: The validator determined above
@@ -615,14 +679,13 @@ Validate task {current_task_index} of {total_tasks} for story {STORY-ID}.
 
 Task: {full task description including notes}
 
-Dev agent output:
-{paste the dev agent's implementation summary}
+Dev agent receipt: .maestro/task-{STORY-ID}-{N}.md — read this file for implementation details, test commands run, test output, and files changed.
 
 Context file: .maestro/context-{STORY-ID}.md
 Diary file: .maestro/diary-{STORY-ID}.md
 Todo file: .maestro/todo-{STORY-ID}.md
 
-Read the context file's Task Progress section to understand what previous tasks accomplished. Validate this specific task: verify implementation exists, run tests independently, check full scope completion. Return COMPLETE or INCOMPLETE.
+Read the context file's Task Progress section to understand what previous tasks accomplished. Read the receipt file for what the dev agent did. Validate this specific task: verify implementation exists, run tests independently, check full scope completion. Return COMPLETE or INCOMPLETE.
 ```
 
 Wait for completion. Parse the validator's verdict: `STATUS: COMPLETE` or `STATUS: INCOMPLETE`.
@@ -641,12 +704,14 @@ Wait for completion. Parse the validator's verdict: `STATUS: COMPLETE` or `STATU
    ---
    ```
 4. Reset failure count for this task
-5. Display: `Task {N}/{total} COMPLETE. Moving to next task...`
-6. Continue to next task
+5. Update state file: increment `current_task_index`, remove entry from `failure_counts`
+6. Display: `Task {N}/{total} COMPLETE. Moving to next task...`
+7. Continue to next task
 
 **If INCOMPLETE**:
 1. Increment `failure_counts[current_task_index]`
-2. Read the validator's output for the specific failure reason
+2. Update state file: write updated `failure_counts`
+3. Read the validator's output for the specific failure reason
 
 **Failure count < 3 -- retry with escalation logic:**
 
@@ -672,16 +737,17 @@ Display: `Task {N} INCOMPLETE (attempt {failure_count}/3). {Retrying with same a
 Loop back to step C with the updated agent assignment.
 
 **Failure count = 3 -- HALT:**
-1. Update context file:
+1. Update state file: write `failure_counts[current_task_index] = 3`
+2. Update context file:
    - **Progress**: HALTED on task {N}
    - Add to **Blockers**: Task {N} failed 3 times: {failure reasons summary}
-2. Append to diary:
+3. Append to diary:
    ```
    ## [{timestamp}] arc-maestro
    [problem] Task {N}/{total} failed 3 times. Halting for user intervention. Failure reasons: {summary}.
    ---
    ```
-3. Display to user:
+4. Display to user:
    ```
    Task {N}/{total} has failed 3 times.
 
@@ -696,8 +762,8 @@ Loop back to step C with the updated agent assignment.
    2. Adjust the task scope and retry
    3. Skip this task and continue with the rest
    ```
-4. **WAIT for user response**
-5. Handle based on choice:
+5. **WAIT for user response**
+6. Handle based on choice:
    - Manual: STOP. User will resume later.
    - Adjust scope: Edit the task in the todo file per user's instructions, reset failure count, retry
    - Skip: Mark task as skipped in todo file (`- [~]`), note in context file, continue to next task
@@ -708,7 +774,7 @@ During development, agents may discover new requirements -- technical dependenci
 
 When a dev agent's output mentions discovering new work needed:
 1. Add the new task to `.maestro/todo-{STORY-ID}.md` at an appropriate position
-2. Increment `total_tasks`
+2. Increment `total_tasks`; write updated value to state file
 3. Append to diary:
    ```
    ## [{timestamp}] arc-maestro
@@ -730,7 +796,55 @@ If the scout/planner indicated that visual verification is appropriate for this 
    - Execute the fix tasks as part of the current Phase 7 run
 4. All verification runs **locally** -- never deploy to external systems unless the user explicitly asks
 
-### Step 7.4: All Tasks Complete
+### Step 7.4: Batch Validate Deferred Tasks
+
+If `deferred_tasks` is empty, skip to Step 7.5.
+
+Display: `Batch validating {N} deferred tasks (difficulty 1-3)...`
+
+Use the Task tool:
+- `subagent_type`: `"ca-maestro-batch-validator"`
+- Prompt:
+
+```
+Batch validate {N} deferred tasks for story {STORY-ID}.
+
+Story ID: {STORY-ID}
+Context file: .maestro/context-{STORY-ID}.md
+Diary file: .maestro/diary-{STORY-ID}.md
+Todo file: .maestro/todo-{STORY-ID}.md
+
+Tasks to validate (all difficulty 1-3, no type tag):
+{For each deferred task: "- Task {N}: {description}"}
+
+Receipt files for each task are at .maestro/task-{STORY-ID}-{N}.md. Read each receipt file — it contains implementation details, test commands, test output, and files changed. Read the diary and context file for full story context before validating.
+```
+
+Wait for completion. Parse per-task verdicts from the batch report.
+
+**For each COMPLETE task**:
+1. Update context file: add to "Completed Tasks" section with brief summary
+2. Append to diary:
+   ```
+   ## [{timestamp}] arc-maestro
+   [success] Task {N}/{total} batch validated as COMPLETE.
+   ---
+   ```
+
+**For each INCOMPLETE task**:
+1. Revert task in todo file: change `- [x]` back to `- [ ]`
+2. Set `failure_counts[task_N] = 1` (batch failure counts as Failure 1)
+3. Update state file: write updated `failure_counts`, remove this task from `deferred_tasks`
+4. Display: `Task {N} INCOMPLETE after batch validation: {reason}`
+5. Apply the **same escalation rules from Step 7.3 E** for "Untagged tasks, difficulty 1-3":
+   - Failure 1 (from batch): Retry with `ca-maestro-dev-doer`, include INCOMPLETE reason as context
+   - If retry also fails → Failure 2: Escalate to `ca-maestro-senior-dev-doer`
+   - If that fails → Failure 3: HALT (present user with options from Step 7.3 E)
+6. After each re-implementation, validate per-task with `ca-maestro-task-validator`. On COMPLETE: update context file "Completed Tasks" and update state file (remove failure count entry).
+
+---
+
+### Step 7.5: All Tasks Complete
 
 After all tasks are completed (or skipped):
 
@@ -831,14 +945,15 @@ All agent calls are serial -- each task is implemented, validated, then the next
 
 | Task Type | Agent | Model |
 |-----------|-------|-------|
-| `[Type: frontend]` (any difficulty) | `ca-maestro-frontend-dev-doer` | Opus |
-| `[Type: devops]` (any difficulty) | `ca-maestro-devops-dev-doer` | Opus |
+| `[Type: frontend]` (any difficulty) | `ca-maestro-frontend-dev-doer` | Sonnet |
+| `[Type: devops]` (any difficulty) | `ca-maestro-devops-dev-doer` | Sonnet |
 | Untagged, difficulty 7-10 | `ca-maestro-senior-dev-doer` | Opus |
 | Untagged, difficulty 4-6 | `ca-maestro-dev-doer` | Sonnet |
 | Untagged, difficulty 1-3 | `ca-maestro-junior-dev-doer` | Haiku |
-| Validation: `[Type: frontend]`, difficulty 4+ | `ca-maestro-ui-validator` | Opus |
-| Validation: difficulty 1-5 | `ca-maestro-task-validator` | Haiku |
-| Validation: difficulty 6+ | `ca-maestro-senior-task-validator` | Sonnet |
+| Validation: `[Type: frontend]`, difficulty 4+ | `ca-maestro-ui-validator` | Sonnet |
+| Validation: difficulty 7+ (per-task) | `ca-maestro-senior-task-validator` | Sonnet |
+| Validation: difficulty 4-6 (per-task) | `ca-maestro-task-validator` | Haiku |
+| Validation: difficulty 1-3 untagged (batch) | `ca-maestro-batch-validator` | Haiku |
 
 ### Escalation Rules
 
@@ -851,11 +966,12 @@ All agent calls are serial -- each task is implemented, validated, then the next
 
 ### Token Cost Profile
 
-- Phase 2: 1 scout call (Opus) -- heaviest research phase
-- Phase 4: 1 planner call (Opus)
-- Phase 5: 1 reviewer call (Opus)
-- Phase 7: Per task: 1 dev call + 1 validator call. Retries add more calls.
-- Total for N tasks (no retries): 3 + 2N agent calls
+- Phase 2: 1 scout call (Opus) + 1 summary generation (orchestrator) -- heaviest research phase
+- Phase 4: 1 planner call (Sonnet)
+- Phase 5: 1 reviewer call (Sonnet)
+- Phase 7: Per task: 1 dev call + 1 validator call. Difficulty 1-3 untagged: 1 dev call only (batch validates at end). Retries add more calls.
+- Phase 7 end: 1 batch validator call (Haiku) covers all deferred tasks at once (if any)
+- Total for N tasks, K batched (no retries): 2 + 2(N-K) + K + 1 agent calls
 
 ### Tech-Stack Agnostic
 
@@ -866,6 +982,9 @@ This command makes zero assumptions about language, framework, test runner, or c
 - **Context file** (`.maestro/context-{STORY-ID}.md`): Status dashboard. Where things stand RIGHT NOW. Updated by every agent. Uses `<!-- @tag -->` anchors for section queries.
 - **Diary file** (`.maestro/diary-{STORY-ID}.md`): Narrative log. HOW we got here. Append-only, chronological. Written when agents discover something non-obvious.
 - **Todo file** (`.maestro/todo-{STORY-ID}.md`): Task list with checkboxes, difficulty ratings, and type tags.
+- **Summary file** (`.maestro/summary-{STORY-ID}.md`): Condensed research reference (~50 lines) generated by orchestrator after scout. Key patterns, test strategy, citations, constraints. Dev agents read this first; full research in context file.
+- **Task receipt files** (`.maestro/task-{STORY-ID}-{N}.md`): Written by ALL dev agents after each task. Contains: what was built, test commands run, test output, files changed. Per-task validators read from this file (not from pasted output). Batch validator reads them for deferred tasks.
+- **State file** (`.maestro/state-{STORY-ID}.json`): Persists `current_task_index`, `failure_counts`, `deferred_tasks` after every task. Used by Phase 7 resume to restore loop state without reconstructing from scratch.
 
 ### Context File Anchors
 

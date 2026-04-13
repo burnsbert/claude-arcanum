@@ -1,0 +1,290 @@
+{
+  "workflows": [
+    {
+      "id": "investigate",
+      "name": "Investigate",
+      "description": "Automated troubleshooting — problem context, theory generation, parallel validation",
+      "icon": "magnifying-glass",
+      "members": [
+        {
+          "path": "commands/arc-investigate.md",
+          "type": "command",
+          "name": "arc-investigate",
+          "description": "Automated troubleshooting workflow (problem → theories → validation → next steps)"
+        },
+        {
+          "path": "commands/ca-store-problem-context.md",
+          "type": "command",
+          "name": "ca-store-problem-context",
+          "description": "Document problems from active Claude Code sessions"
+        },
+        {
+          "path": "agents/ca-brainstormer.md",
+          "type": "agent",
+          "name": "ca-brainstormer"
+        },
+        {
+          "path": "agents/ca-problem-theory-validator.md",
+          "type": "agent",
+          "name": "ca-problem-theory-validator"
+        }
+      ]
+    },
+    {
+      "id": "rca",
+      "name": "Root Cause Analysis",
+      "description": "Forensic bug analysis using git archaeology — traces bugs to origin, finds similar issues",
+      "icon": "search",
+      "members": [
+        {
+          "path": "commands/arc-rca.md",
+          "type": "command",
+          "name": "arc-rca",
+          "description": "Root Cause Analysis for bugs"
+        },
+        {
+          "path": "agents/arc-root-cause-analyzer.md",
+          "type": "agent",
+          "name": "arc-root-cause-analyzer"
+        }
+      ]
+    },
+    {
+      "id": "llm",
+      "name": "LLM Consultation",
+      "description": "Generate self-contained prompts for consulting external LLMs",
+      "icon": "chat",
+      "members": [
+        {
+          "path": "commands/arc-llm.md",
+          "type": "command",
+          "name": "arc-llm",
+          "description": "Generate LLM consultation prompts"
+        }
+      ]
+    },
+    {
+      "id": "research-team",
+      "name": "Research Team",
+      "description": "Team-based parallel deep research — decomposes questions into threads investigated by parallel agents",
+      "icon": "people",
+      "members": [
+        {
+          "path": "commands/arc-research-team.md",
+          "type": "command",
+          "name": "arc-research-team",
+          "description": "Team-based parallel deep research"
+        },
+        {
+          "path": "agents/ca-research-agent.md",
+          "type": "agent",
+          "name": "ca-research-agent"
+        },
+        {
+          "path": "agents/ca-research-synthesizer.md",
+          "type": "agent",
+          "name": "ca-research-synthesizer"
+        }
+      ]
+    },
+    {
+      "id": "war-room",
+      "name": "War Room",
+      "description": "Team-based parallel investigation — brainstorms theories, dispatches dynamic investigators",
+      "icon": "shield",
+      "members": [
+        {
+          "path": "commands/arc-war-room.md",
+          "type": "command",
+          "name": "arc-war-room",
+          "description": "Team-based parallel investigation with dynamic investigator spawning"
+        },
+        {
+          "path": "agents/ca-brainstormer.md",
+          "type": "agent",
+          "name": "ca-brainstormer",
+          "standalone": true
+        },
+        {
+          "path": "agents/ca-war-room-investigator.md",
+          "type": "agent",
+          "name": "ca-war-room-investigator"
+        }
+      ]
+    },
+    {
+      "id": "think-tank",
+      "name": "Think Tank",
+      "description": "Creative ideation — generates, critiques, evolves, and ranks ideas through 5 rounds",
+      "icon": "lightbulb",
+      "members": [
+        {
+          "path": "commands/arc-think-tank.md",
+          "type": "command",
+          "name": "arc-think-tank",
+          "description": "Creative ideation workflow with personality-driven rounds"
+        },
+        {
+          "path": "agents/ca-think-tank-thinker.md",
+          "type": "agent",
+          "name": "ca-think-tank-thinker"
+        },
+        {
+          "path": "agents/ca-think-tank-vetter.md",
+          "type": "agent",
+          "name": "ca-think-tank-vetter"
+        },
+        {
+          "path": "agents/ca-think-tank-riffer.md",
+          "type": "agent",
+          "name": "ca-think-tank-riffer"
+        },
+        {
+          "path": "agents/ca-think-tank-judge.md",
+          "type": "agent",
+          "name": "ca-think-tank-judge"
+        }
+      ]
+    },
+    {
+      "id": "maestro",
+      "name": "Maestro",
+      "description": "Semi-autonomous development pipeline — scout, plan, implement, validate, review",
+      "icon": "rocket",
+      "members": [
+        {
+          "path": "commands/arc-maestro.md",
+          "type": "command",
+          "name": "arc-maestro",
+          "description": "Semi-autonomous development pipeline from story to implementation"
+        },
+        {
+          "path": "commands/arc-maestro-review.md",
+          "type": "command",
+          "name": "arc-maestro-review",
+          "description": "Code review and PR creation (Maestro Phases 8-10)"
+        },
+        {
+          "path": "agents/ca-maestro-scout.md",
+          "type": "agent",
+          "name": "ca-maestro-scout"
+        },
+        {
+          "path": "agents/ca-maestro-planner.md",
+          "type": "agent",
+          "name": "ca-maestro-planner"
+        },
+        {
+          "path": "agents/ca-maestro-plan-reviewer.md",
+          "type": "agent",
+          "name": "ca-maestro-plan-reviewer"
+        },
+        {
+          "path": "agents/ca-maestro-dev-doer.md",
+          "type": "agent",
+          "name": "ca-maestro-dev-doer"
+        },
+        {
+          "path": "agents/ca-maestro-senior-dev-doer.md",
+          "type": "agent",
+          "name": "ca-maestro-senior-dev-doer"
+        },
+        {
+          "path": "agents/ca-maestro-junior-dev-doer.md",
+          "type": "agent",
+          "name": "ca-maestro-junior-dev-doer"
+        },
+        {
+          "path": "agents/ca-maestro-frontend-dev-doer.md",
+          "type": "agent",
+          "name": "ca-maestro-frontend-dev-doer"
+        },
+        {
+          "path": "agents/ca-maestro-devops-dev-doer.md",
+          "type": "agent",
+          "name": "ca-maestro-devops-dev-doer"
+        },
+        {
+          "path": "agents/ca-maestro-task-validator.md",
+          "type": "agent",
+          "name": "ca-maestro-task-validator"
+        },
+        {
+          "path": "agents/ca-maestro-senior-task-validator.md",
+          "type": "agent",
+          "name": "ca-maestro-senior-task-validator"
+        },
+        {
+          "path": "agents/ca-maestro-batch-validator.md",
+          "type": "agent",
+          "name": "ca-maestro-batch-validator"
+        },
+        {
+          "path": "agents/ca-maestro-code-review.md",
+          "type": "agent",
+          "name": "ca-maestro-code-review"
+        },
+        {
+          "path": "agents/ca-maestro-code-review-responder.md",
+          "type": "agent",
+          "name": "ca-maestro-code-review-responder"
+        },
+        {
+          "path": "agents/ca-maestro-ui-validator.md",
+          "type": "agent",
+          "name": "ca-maestro-ui-validator"
+        }
+      ]
+    },
+    {
+      "id": "pr-review",
+      "name": "PR Review",
+      "description": "Comprehensive code review with two-agent workflow — pass1 reviewer + validator",
+      "icon": "code",
+      "members": [
+        {
+          "path": "skills/arc-pr-review",
+          "type": "skill",
+          "name": "arc-pr-review",
+          "description": "Comprehensive code review of a GitHub PR or local branch"
+        },
+        {
+          "path": "agents/ca-pr-review-pass1.md",
+          "type": "agent",
+          "name": "ca-pr-review-pass1"
+        },
+        {
+          "path": "agents/ca-code-review-validator.md",
+          "type": "agent",
+          "name": "ca-code-review-validator",
+          "standalone": true
+        }
+      ]
+    },
+    {
+      "id": "pr-respond",
+      "name": "PR Respond",
+      "description": "Analyze PR feedback with severity classification, recommended actions, and HTML report",
+      "icon": "reply",
+      "members": [
+        {
+          "path": "skills/arc-pr-respond",
+          "type": "skill",
+          "name": "arc-pr-respond",
+          "description": "Analyze PR review feedback and produce prioritized action plan"
+        },
+        {
+          "path": "agents/ca-pr-respond-pass1.md",
+          "type": "agent",
+          "name": "ca-pr-respond-pass1"
+        },
+        {
+          "path": "agents/ca-code-review-validator.md",
+          "type": "agent",
+          "name": "ca-code-review-validator",
+          "standalone": true
+        }
+      ]
+    }
+  ]
+}

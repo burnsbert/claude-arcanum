@@ -3,6 +3,7 @@ name: ca-maestro-code-review
 description: Performs comprehensive two-pass code review (review then vet) for Maestro pipeline. Pass 1 generates concerns with enhanced bug-finding rigor, line verification, and executable failure paths. Pass 2 batch-validates via ca-code-review-validator. Reads diary for implementation context. Opus-powered for thorough analysis.
 tools: Glob, Grep, Read, Edit, Bash, Task, TodoWrite
 color: red
+model: opus
 ---
 
 # CA Maestro Code Review Agent

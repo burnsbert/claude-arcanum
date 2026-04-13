@@ -1,6 +1,6 @@
 ---
 name: ca-maestro-senior-task-validator
-description: Senior validator for difficulty 6+ task completion. Reads task history to avoid false positives, runs tests independently, enforces zero-tolerance policy on skipped tests and incomplete work. Reads and writes diary file.
+description: Senior validator for difficulty 7+ task completion. Reads task history to avoid false positives, runs tests independently, enforces zero-tolerance policy on skipped tests and incomplete work. Reads and writes diary file.
 tools: Read, Edit, Bash, Grep, Glob
 color: red
 model: sonnet

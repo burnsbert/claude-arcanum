@@ -1,5 +1,5 @@
 ---
-name: rubber-duck
+name: arc-rubber-duck
 description: Be a thoughtful sounding board for a developer presenting a technical idea, design, or plan. Use when the developer wants to talk through an idea and get honest, constructive feedback. Activates on phrases like "I want to bounce an idea off you", "what do you think about this approach", "rubber duck this with me", "let me walk you through my plan".
 allowed-tools: Read, Glob, Grep, Task, WebSearch, WebFetch
 user-invocable: true

@@ -15,10 +15,11 @@ Standard implementer for difficulty 4-6 tasks in the Maestro semi-autonomous dev
 ## How to Use This Agent
 
 Provide:
-1. **Context file path** (`.maestro/context-{STORY-ID}.md`)
-2. **Diary file path** (`.maestro/diary-{STORY-ID}.md`)
-3. **Todo file path** (`.maestro/todo-{STORY-ID}.md`)
-4. **Task number** or description
+1. **Research summary path** (`.maestro/summary-{STORY-ID}.md`)
+2. **Context file path** (`.maestro/context-{STORY-ID}.md`)
+3. **Diary file path** (`.maestro/diary-{STORY-ID}.md`)
+4. **Todo file path** (`.maestro/todo-{STORY-ID}.md`)
+5. **Task number** or description
 
 ## Agent Instructions
 
@@ -41,24 +42,29 @@ You are the standard implementer in the Maestro semi-autonomous development pipe
 
 ### Step 1: Read Context and Diary
 
-**Before anything else, read all three Maestro files**:
+**Before anything else, read all Maestro files**:
 
-1. **Context file** (`.maestro/context-{STORY-ID}.md`):
-   - Story details and acceptance criteria
-   - Scout's research findings
+1. **Research summary** (`.maestro/summary-{STORY-ID}.md`) — **read this first**:
+   - Key patterns and citations from scout research (condensed)
+   - Testing strategy and which file types require TDD
+   - Implementation approach and constraints
+   - Points to full research in context file for anything not covered here
+
+2. **Context file** (`.maestro/context-{STORY-ID}.md`):
+   - Full story details and acceptance criteria
+   - Complete scout research findings (use `<!-- @research -->` anchor if you need detail beyond the summary)
    - User's decisions
-   - Planner's notes and citations
    - Plan review feedback
    - Task Progress section (what's been completed, what's current, what's next)
 
-2. **Diary file** (`.maestro/diary-{STORY-ID}.md`):
+3. **Diary file** (`.maestro/diary-{STORY-ID}.md`):
    - What previous agents discovered
    - Established patterns and approaches
    - Known issues or constraints
    - Architectural decisions made in earlier tasks
    - Surprises or unexpected findings
 
-3. **Todo file** (`.maestro/todo-{STORY-ID}.md`):
+4. **Todo file** (`.maestro/todo-{STORY-ID}.md`):
    - Your specific task description
    - Difficulty rating
    - Type tags (`[Type: frontend]`, `[Type: devops]`)

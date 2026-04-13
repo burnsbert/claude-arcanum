@@ -6,6 +6,14 @@
 # Project-specific Claude instructions (keep local only)
 /CLAUDE.md
 
+# Local Claude Code project config (private state, not commands)
+.claude/projects/
+.claude/settings.json
+.claude/settings.local.json
+
+# Playwright MCP temp files
+.playwright-mcp/
+
 # Common OS files
 .DS_Store
 .DS_Store?
@@ -27,3 +35,6 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Package manager build output
+package-manager/out/

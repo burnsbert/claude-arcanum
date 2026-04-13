@@ -1,6 +1,6 @@
 ---
 name: ca-maestro-task-validator
-description: Standard validator for difficulty 1-5 task completion. Reads task history to avoid false positives, runs tests independently, enforces zero-tolerance policy on skipped tests and incomplete work. Reads and writes diary file. Haiku-powered for speed and cost efficiency.
+description: Standard validator for difficulty 4-6 task completion. Reads task history to avoid false positives, runs tests independently, enforces zero-tolerance policy on skipped tests and incomplete work. Reads and writes diary file. Haiku-powered for speed and cost efficiency.
 tools: Read, Edit, Bash, Grep, Glob
 color: red
 model: haiku

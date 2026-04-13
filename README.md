@@ -15,8 +15,6 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 ### Features
 
 **Agent-Powered Custom Commands**
-- **arc-pr-review** - Three-pass validated code reviews on GitHub PRs. Give yourself a code review or run it on a PR you are code reviewing for a code review sidekick.
-- **arc-pr-respond** - Helps you respond to a code review you have received on GitHub. Makes next steps easy with recommendations and being queued up to give Claude Code instructions for making requested adjustments to your code quickly.
 - **arc-investigate** - This is the bunker buster missile for intractable problems. It burns a ton of tokens but can help get Claude Code unstuck.
 - **arc-llm** - Generate prompts for external LLM consultation on the current issue. "Phone a friend"
 - **arc-rca** - Root cause analysis with git forensics of the bug you just fixed or are fixing. Git blame is for amateurs.
@@ -32,24 +30,30 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 
 **Creative Ideation** (Multi-round idea generation and ranking)
 - **arc-think-tank** - Creative ideation workflow that generates, critiques, evolves, and ranks ideas toward a goal. 5 rounds of thinking (Opus+ultrathink), vetting (Sonnet), and riffing (Opus) — each round with randomly assigned personalities that change how agents reason, evaluate, and evolve ideas. Final judge (Opus, personality-neutral) produces a ranked report. 17 serial agent calls, comparable to arc-war-room in scope.
-
 **Semi-Autonomous Development** (Story-to-PR pipeline)
 - **arc-maestro** - 10-phase pipeline from story to implementation. Researches codebase, creates plan, implements tasks with specialist routing, validates each task. Handles Jira tickets or local story files.
 - **arc-maestro-review** - Code review and PR creation. Two-pass review with enhanced bug-finding, fixes bugs with regression tests, creates PR.
 
-**Skills** (Conversational tools)
+**Skills** (Self-contained workflows with scripts and references)
+- **arc-pr-review** - Comprehensive validated code reviews on GitHub PRs. Give yourself a code review or run it on a PR you are code reviewing for a code review sidekick.
+- **arc-pr-respond** - Helps you respond to a code review you have received on GitHub. Makes next steps easy with recommendations and being queued up to give Claude Code instructions for making requested adjustments to your code quickly.
 - **rubber-duck** - A trusted peer developer for talking through technical ideas, designs, and plans. Follows a structured conversation flow: listen and understand, explore together, strengthen the idea, and summarize. Asks one question at a time, uses codebase research to verify claims, and gives honest feedback without being a rubber stamp or a blocker.
+
+**Package Manager** (Electron app)
+- **`/pm`** - Launch the Arcanum Package Manager to install, update, and manage workflows, commands, skills, and agents. Provides a visual interface for managing what's installed to `~/.claude/`.
 
 ### Architecture
 
 Note: everything a user is meant to call has the arc- preface. Commands and agents with ca- are utility resources that the arc- commands and agents call, but aren't designed for direct use by the user.
 
 ```
+Skills (Self-contained)        Agents (Internal)
+──────────────────────────    ─────────────────────
+/arc-pr-review ────────────▶  ca-pr-review-pass1 + ca-code-review-validator
+/arc-pr-respond ───────────▶  ca-pr-respond-pass1 + ca-code-review-validator
+
 Agent-Powered Commands        Agents (Internal)
 ──────────────────────────    ─────────────────────
-/arc-pr-review ────────────▶  gh CLI + ca-code-review-validator (parallel)
-/arc-pr-respond ───────────▶  gh CLI + ca-code-review-validator (parallel)
-
 /arc-investigate ──────────▶  ca-store-problem-context (utility)
                  │            ca-brainstormer
                  └──────────▶ ca-problem-theory-validator (×5-6 parallel)
@@ -71,17 +75,18 @@ Agent-Powered Commands        Agents (Internal)
                  │            ca-think-tank-riffer (×5 serial)
                  └──────────▶ ca-think-tank-judge (final report)
 
-/arc-maestro ────────────▶  ca-maestro-scout
-                 │            ca-maestro-planner
-                 │            ca-maestro-plan-reviewer
+/arc-maestro ────────────▶  ca-maestro-scout (Opus)
+                 │            ca-maestro-planner (Sonnet)
+                 │            ca-maestro-plan-reviewer (Sonnet)
                  │            ca-maestro-junior-dev-doer (Haiku)
                  │            ca-maestro-dev-doer (Sonnet)
-                 │            ca-maestro-senior-dev-doer
-                 │            ca-maestro-frontend-dev-doer
-                 │            ca-maestro-devops-dev-doer
-                 │            ca-maestro-task-validator (Haiku)
-                 │            ca-maestro-senior-task-validator (Sonnet)
-                 └──────────▶ ca-maestro-ui-validator (Opus)
+                 │            ca-maestro-senior-dev-doer (Opus)
+                 │            ca-maestro-frontend-dev-doer (Sonnet)
+                 │            ca-maestro-devops-dev-doer (Sonnet)
+                 │            ca-maestro-task-validator (Haiku, diff 4-6)
+                 │            ca-maestro-senior-task-validator (Sonnet, diff 7+)
+                 │            ca-maestro-batch-validator (Haiku, diff 1-3)
+                 └──────────▶ ca-maestro-ui-validator (Sonnet)
 
 /arc-maestro-review ─────▶  ca-maestro-code-review
                  └──────────▶ ca-maestro-code-review-responder
@@ -155,100 +160,101 @@ Decomposes your question into independent threads, dispatches 3 parallel researc
 ```
 claude-arcanum/
 ├── commands/          # Custom slash commands for Claude Code
-│   ├── arc-think-tank.md
 │   ├── arc-investigate.md
 │   ├── arc-rca.md
 │   ├── arc-llm.md
-│   ├── arc-pr-review.md
-│   ├── arc-pr-respond.md
+│   ├── arc-think-tank.md
 │   ├── arc-research-team.md
 │   ├── arc-war-room.md
 │   ├── arc-maestro.md
 │   ├── arc-maestro-review.md
 │   └── ca-store-problem-context.md
+├── skills/           # Self-contained skill workflows
+│   ├── arc-pr-review/
+│   │   ├── SKILL.md
+│   │   ├── scripts/           # collect-pr-context.py, review-to-html.py
+│   │   └── references/        # review-file-format.md
+│   ├── arc-pr-respond/
+│   │   ├── SKILL.md
+│   │   ├── scripts/           # fetch-feedback.py, respond-to-html.py
+│   │   └── references/        # respond-file-format.md
+│   └── arc-rubber-duck/
+│       └── SKILL.md
 ├── agents/           # Custom agent definitions
 │   ├── arc-root-cause-analyzer.md
 │   ├── arc-deep-research.md
 │   ├── arc-technical-writer.md
-│   ├── ca-brainstormer.md
+│   ├── ca-pr-review-pass1.md
+│   ├── ca-pr-respond-pass1.md
 │   ├── ca-code-review-validator.md
+│   ├── ca-brainstormer.md
+│   ├── ca-problem-theory-validator.md
 │   ├── ca-think-tank-thinker.md
 │   ├── ca-think-tank-vetter.md
 │   ├── ca-think-tank-riffer.md
 │   ├── ca-think-tank-judge.md
-│   ├── ca-problem-theory-validator.md
 │   ├── ca-research-agent.md
 │   ├── ca-research-synthesizer.md
 │   ├── ca-war-room-investigator.md
-│   ├── ca-maestro-scout.md
-│   ├── ca-maestro-planner.md
-│   ├── ca-maestro-plan-reviewer.md
-│   ├── ca-maestro-junior-dev-doer.md
-│   ├── ca-maestro-dev-doer.md
-│   ├── ca-maestro-senior-dev-doer.md
-│   ├── ca-maestro-frontend-dev-doer.md
-│   ├── ca-maestro-devops-dev-doer.md
-│   ├── ca-maestro-task-validator.md
-│   ├── ca-maestro-senior-task-validator.md
-│   ├── ca-maestro-ui-validator.md
-│   ├── ca-maestro-code-review.md
-│   ├── ca-maestro-code-review-responder.md
-│   └── personalities/    # Personality definitions for think-tank
-│       ├── contrarian.md
-│       ├── pragmatist.md
-│       ├── visionary.md
-│       └── connector.md
-├── skills/           # Conversational skills
-│   └── rubber-duck/
-│       └── SKILL.md
-├── scripts/          # Installation and utility scripts
+│   ├── ca-maestro-*.md          # Maestro pipeline agents
+│   └── personalities/           # Think-tank personality definitions
+├── package-manager/   # Electron app for visual install management (/pm)
+├── workflows.json     # Workflow definitions for package manager
 └── README.md
 ```
 
 ---
 
-### Custom Commands (GitHub Integration)
+### Skills (GitHub Integration)
 
-Direct commands that interact with GitHub via the `gh` CLI.
+Self-contained workflows with their own scripts and reference files.
 
-#### `/arc-pr-review` - Three-Pass Validated PR Review
+#### `/arc-pr-review` - Validated PR Review
 
-**Purpose**: Perform comprehensive code review on GitHub pull requests with three-pass validation to ensure high-quality, accurate feedback.
+**Purpose**: Perform comprehensive code review on GitHub pull requests with a two-agent workflow (pass1 reviewer + validator) to ensure high-quality, accurate feedback. Produces an interactive HTML report.
 
-**Prerequisites**: Requires GitHub CLI (`gh`). Command will automatically detect and offer to install on macOS/Linux/Windows if missing.
+**Prerequisites**: Requires GitHub CLI (`gh`).
 
 **Usage**:
 ```bash
 /arc-pr-review https://github.com/owner/repo/pull/123
-# or
 /arc-pr-review 123
+/arc-pr-review development              # Local branch diff mode
+/arc-pr-review                          # Auto-detect PR for current branch
 ```
+
 **Powered by** (in execution order):
-1. GitHub CLI (`gh`) - Fetches PR data
-2. Initial review - Comprehensive code review with checklist
-3. `ca-code-review-validator` - Validates feedback items
+1. `collect-pr-context.py` - Fetches PR metadata, diff, review threads in parallel
+2. Generic ticket lookup - Tries available PM MCPs (Jira, Asana, etc.) or searches for local story files
+3. `ca-pr-review-pass1` (agent) - First-pass review with C#/I#/M#/S# findings
+4. `ca-code-review-validator` (agent) - Validates findings, filters false positives
+5. `review-to-html.py` - Generates interactive HTML report
 
 ---
 
 #### `/arc-pr-respond` - Validated Feedback Analysis
 
-**Purpose**: Analyze PR review feedback with validation, provide assessments, and create prioritized response plan.
+**Purpose**: Analyze PR review feedback with validation, provide assessments, and create prioritized response plan with an interactive HTML report. Every reviewer comment appears in the report — the validator determines severity classification, not inclusion.
 
-**Prerequisites**: Requires GitHub CLI (`gh`). Command will automatically detect and offer to install on macOS/Linux/Windows if missing.
+**Prerequisites**: Requires GitHub CLI (`gh`).
 
 **Usage**:
 ```bash
 /arc-pr-respond https://github.com/owner/repo/pull/123
-/arc-pr-respond 123 humans              # Only human reviewers (not an ai reviewer like Code Rabbit)
+/arc-pr-respond 123 humans              # Only human reviewers (not an ai reviewer like CodeRabbit)
 /arc-pr-respond 123 fred and wilma      # Specific reviewers
 ```
 
 **Powered by** (in execution order):
-1. GitHub CLI (`gh`) - Fetches PR feedback
-2. Initial categorization - Parses and categorizes all feedback
-3. `ca-code-review-validator` - Validates complex items
+1. `fetch-feedback.py` - Fetches all feedback types in parallel
+2. Generic ticket lookup - Tries available PM MCPs or searches for local story files
+3. `ca-pr-respond-pass1` (agent) - Classifies, deduplicates, and drafts responses
+4. `ca-code-review-validator` (agent) - Validates actionable items
+5. `respond-to-html.py` - Generates interactive HTML report with original comment expansion
 
 ---
+
+### Custom Commands
 
 #### `/arc-investigate` - Automated Troubleshooting
 
@@ -566,9 +572,10 @@ Each round of the think-tank assigns a random personality to each agent (thinker
 - `ca-maestro-senior-dev-doer` (agent) - Complex task specialist (difficulty 7+)
 - `ca-maestro-frontend-dev-doer` (agent) - UI/UX specialist
 - `ca-maestro-devops-dev-doer` (agent) - Infrastructure specialist
-- `ca-maestro-task-validator` (agent, Haiku) - Strict pass/fail gate (difficulty 1-5)
-- `ca-maestro-senior-task-validator` (agent, Sonnet) - Strict pass/fail gate (difficulty 6+)
-- `ca-maestro-ui-validator` (agent, Opus) - Visual validation specialist (frontend tasks, difficulty 4+)
+- `ca-maestro-task-validator` (agent, Haiku) - Strict pass/fail gate (difficulty 4-6)
+- `ca-maestro-senior-task-validator` (agent, Sonnet) - Strict pass/fail gate (difficulty 7+)
+- `ca-maestro-batch-validator` (agent, Haiku) - Batch pass/fail gate for untagged difficulty 1-3 tasks
+- `ca-maestro-ui-validator` (agent, Sonnet) - Visual validation specialist (frontend tasks, difficulty 4+)
 
 **How It Works**:
 
@@ -582,23 +589,24 @@ Maestro executes **Phases 1-7** with continuous execution between user checkpoin
 | 4 | Plan | Break story into tasks with difficulty/type/TDD structure | No |
 | 5 | Review | Quality gate: plan-reviewer vets and improves the plan | No |
 | 6 | Approve | User reviews and approves the plan | Yes |
-| 7 | Develop | Implement tasks one-by-one with mandatory validation | Yes (only on blocker) |
+| 7 | Develop | Implement tasks one-by-one with mandatory validation; batch-validate difficulty 1-3 tasks at end | Yes (only on blocker) |
 
 **Agent Roster**:
 
 | Agent | Model | Role |
 |-------|-------|------|
 | `ca-maestro-scout` | Opus | Codebase researcher — analyzes patterns, conventions, test coverage |
-| `ca-maestro-planner` | Opus | Task decomposer — breaks story into tasks with difficulty/type tags |
-| `ca-maestro-plan-reviewer` | Opus | Quality gate — vets and improves plan before user sees it |
+| `ca-maestro-planner` | Sonnet | Task decomposer — breaks story into tasks with difficulty/type tags |
+| `ca-maestro-plan-reviewer` | Sonnet | Quality gate — vets and improves plan before user sees it |
 | `ca-maestro-junior-dev-doer` | Haiku | Junior implementer — handles difficulty 1-3 tasks |
 | `ca-maestro-dev-doer` | Sonnet | Standard implementer — handles difficulty 4-6 tasks |
 | `ca-maestro-senior-dev-doer` | Opus | Complex task specialist — handles difficulty 7+ and escalations |
-| `ca-maestro-frontend-dev-doer` | Opus | UI/UX specialist — handles `[Type: frontend]` tasks at any difficulty |
-| `ca-maestro-devops-dev-doer` | Opus | Infrastructure specialist — handles `[Type: devops]` tasks at any difficulty |
-| `ca-maestro-task-validator` | Haiku | Strict pass/fail gate — validates difficulty 1-5 tasks |
-| `ca-maestro-senior-task-validator` | Sonnet | Strict pass/fail gate — validates difficulty 6+ tasks |
-| `ca-maestro-ui-validator` | Opus | Visual validation specialist — browser screenshots + interaction testing for frontend tasks |
+| `ca-maestro-frontend-dev-doer` | Sonnet | UI/UX specialist — handles `[Type: frontend]` tasks at any difficulty |
+| `ca-maestro-devops-dev-doer` | Sonnet | Infrastructure specialist — handles `[Type: devops]` tasks at any difficulty |
+| `ca-maestro-task-validator` | Haiku | Strict pass/fail gate — validates difficulty 4-6 tasks (per-task) |
+| `ca-maestro-senior-task-validator` | Sonnet | Strict pass/fail gate — validates difficulty 7+ tasks (per-task) |
+| `ca-maestro-batch-validator` | Haiku | Batch pass/fail gate — validates all untagged difficulty 1-3 tasks at end of pipeline |
+| `ca-maestro-ui-validator` | Sonnet | Visual validation specialist — browser screenshots + interaction testing for frontend tasks (difficulty 4+) |
 
 **Routing Rules**:
 
@@ -613,29 +621,38 @@ Tasks are routed using two-dimensional routing:
    - Difficulty 4-6 → `ca-maestro-dev-doer`
    - Difficulty 1-3 → `ca-maestro-junior-dev-doer`
 
+**Validation Routing**:
+
+Difficulty 1-3 untagged tasks are **deferred** during the task loop and batch-validated by `ca-maestro-batch-validator` at the end of Phase 7. All other tasks get per-task validation immediately after implementation.
+
 **Failure Handling**:
 - Specialist tasks (frontend/devops) retry with the same specialist (no cross-agent escalation)
-- Junior tasks (difficulty 1-3) escalate: junior → dev-doer → senior-dev-doer
+- Junior tasks (difficulty 1-3) escalate: junior → dev-doer → senior-dev-doer (batch failure counts as attempt 1)
 - Standard tasks (difficulty 4+) escalate: same agent → senior-dev-doer
 - Development halts after 3 failures on any single task — user decides next step
 
 **File Organization**:
 
-Maestro creates a `.maestro/` directory at project root with three files per story:
+Maestro creates a `.maestro/` directory at project root:
 
 ```
 .maestro/
-  context-{STORY-ID}.md    # Status dashboard — where things stand now
-  todo-{STORY-ID}.md       # Task list with difficulty/type tags
-  diary-{STORY-ID}.md      # Narrative log — how we got here
-  demo/                    # Demo artifacts (if frontend tasks produce them)
+  context-{STORY-ID}.md       # Status dashboard — where things stand now
+  todo-{STORY-ID}.md          # Task list with difficulty/type tags
+  diary-{STORY-ID}.md         # Narrative log — how we got here
+  summary-{STORY-ID}.md       # Condensed research reference for dev agents (~50 lines)
+  task-{STORY-ID}-{N}.md      # Task receipts for difficulty 1-3 tasks (read by batch validator)
 ```
 
-**Context File**: Single source of truth. Contains Story Details, Current Status, Research Findings, Task Progress, Agent Outputs, Blockers, Decisions.
+**Context File**: Status dashboard. Contains Story Details, Current Status, Research Findings (full), Task Progress, Agent Outputs, Blockers, Decisions. Uses `<!-- @tag -->` anchors for targeted section extraction.
 
 **Diary File**: Narrative log of discoveries, decisions, problems, and successes. Agents read before starting work and write when they discover something that could affect later work. Uses grep-able tags: `[decision]`, `[problem]`, `[learning]`, `[success]`.
 
 **Todo File**: Task list created by planner with difficulty ratings, type tags, implementation notes, and success criteria.
+
+**Summary File**: Condensed ~50-line research reference generated by the orchestrator after scout completes. Dev agents read this first for key patterns, test strategy, and citations. Points to full research in context file.
+
+**Task Receipt Files**: Written by junior dev-doers after each difficulty 1-3 task. Contains implementation summary, files changed, test command, and test output. Read by batch validator at end of pipeline.
 
 **Resume Capability**:
 

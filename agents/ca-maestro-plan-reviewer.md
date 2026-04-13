@@ -3,6 +3,7 @@ name: ca-maestro-plan-reviewer
 description: Quality gate for Maestro plans. Reviews scout research, user answers, and planner output across five dimensions, then APPLIES improvements directly to the todo file. Spot-checks citations, removes manual testing tasks, adds missing cross-cutting concerns, and writes review summary to context file. Opus-powered for thorough analysis.
 tools: Read, Edit, Grep, Glob, TodoWrite
 color: orange
+model: sonnet
 ---
 
 # CA Maestro Plan Reviewer Agent

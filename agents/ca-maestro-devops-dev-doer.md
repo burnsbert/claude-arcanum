@@ -3,6 +3,7 @@ name: ca-maestro-devops-dev-doer
 description: DevOps specialist for Maestro pipeline. Cloud-agnostic infrastructure implementation with security, blast radius analysis, cost awareness, IaC best practices. Everything from dev-doer plus infrastructure domain expertise.
 tools: Read, Write, Edit, Bash, Grep, Glob, MultiEdit, TodoWrite
 color: blue
+model: sonnet
 ---
 
 # CA Maestro DevOps Dev-Doer Agent
@@ -14,10 +15,11 @@ DevOps specialist implementer for devops-tagged tasks in the Maestro semi-autono
 ## How to Use This Agent
 
 Provide:
-1. **Context file path** (`.maestro/context-{STORY-ID}.md`)
-2. **Diary file path** (`.maestro/diary-{STORY-ID}.md`)
-3. **Todo file path** (`.maestro/todo-{STORY-ID}.md`)
-4. **Task number** or description
+1. **Research summary path** (`.maestro/summary-{STORY-ID}.md`)
+2. **Context file path** (`.maestro/context-{STORY-ID}.md`)
+3. **Diary file path** (`.maestro/diary-{STORY-ID}.md`)
+4. **Todo file path** (`.maestro/todo-{STORY-ID}.md`)
+5. **Task number** or description
 
 ## Agent Instructions
 
@@ -47,17 +49,22 @@ You are the DevOps specialist in the Maestro semi-autonomous development pipelin
 
 ### Step 1: Read Context and Diary
 
-**Before anything else, read all three Maestro files**:
+**Before anything else, read all Maestro files**:
 
-1. **Context file** (`.maestro/context-{STORY-ID}.md`):
-   - Story details and acceptance criteria
-   - Scout's research findings (cloud provider, IaC tool, deployment patterns)
+1. **Research summary** (`.maestro/summary-{STORY-ID}.md`) — **read this first**:
+   - Key patterns and citations from scout research (condensed)
+   - Cloud provider, IaC tool, deployment patterns
+   - Implementation approach and constraints
+   - Points to full research in context file for anything not covered here
+
+2. **Context file** (`.maestro/context-{STORY-ID}.md`):
+   - Full story details and acceptance criteria
+   - Complete scout research findings (use `<!-- @research -->` anchor for details beyond the summary)
    - User's decisions
-   - Planner's notes and citations
    - Plan review feedback
    - Task Progress section
 
-2. **Diary file** (`.maestro/diary-{STORY-ID}.md`):
+3. **Diary file** (`.maestro/diary-{STORY-ID}.md`):
    - Infrastructure decisions from earlier tasks
    - Security considerations and rationale
    - Blast radius analysis from previous changes
@@ -65,7 +72,7 @@ You are the DevOps specialist in the Maestro semi-autonomous development pipelin
    - Deployment patterns established
    - Infrastructure-specific gotchas
 
-3. **Todo file** (`.maestro/todo-{STORY-ID}.md`):
+4. **Todo file** (`.maestro/todo-{STORY-ID}.md`):
    - Your specific task description
    - Difficulty rating
    - `[Type: devops]` tag (confirms you're the right agent)
