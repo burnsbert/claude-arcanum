@@ -149,9 +149,27 @@
     {
       "id": "maestro",
       "name": "Maestro",
-      "description": "Semi-autonomous development pipeline — scout, plan, implement, validate, review",
+      "description": "Semi-autonomous development pipeline — story creation, backlog auditing, scout, plan, implement, validate, review",
       "icon": "rocket",
       "members": [
+        {
+          "path": "skills/arc-maestro-feature-planner",
+          "type": "skill",
+          "name": "arc-maestro-feature-planner",
+          "description": "Generate production story backlog from product docs or descriptions"
+        },
+        {
+          "path": "skills/arc-maestro-prototype-planner",
+          "type": "skill",
+          "name": "arc-maestro-prototype-planner",
+          "description": "Generate a prototype story from a product document"
+        },
+        {
+          "path": "skills/arc-maestro-vet-stories",
+          "type": "skill",
+          "name": "arc-maestro-vet-stories",
+          "description": "Audit a story backlog for quality and coherence"
+        },
         {
           "path": "commands/arc-maestro.md",
           "type": "command",
@@ -233,6 +251,11 @@
           "path": "agents/ca-maestro-ui-validator.md",
           "type": "agent",
           "name": "ca-maestro-ui-validator"
+        },
+        {
+          "path": "agents/ca-backlog-auditor.md",
+          "type": "agent",
+          "name": "ca-backlog-auditor"
         }
       ]
     },
@@ -257,6 +280,44 @@
           "path": "agents/ca-code-review-validator.md",
           "type": "agent",
           "name": "ca-code-review-validator",
+          "standalone": true
+        }
+      ]
+    },
+    {
+      "id": "vet",
+      "name": "Vet",
+      "description": "Review recent work with specialized agents, filter noise, and recommend worthwhile changes",
+      "icon": "check-circle",
+      "members": [
+        {
+          "path": "skills/arc-vet",
+          "type": "skill",
+          "name": "arc-vet",
+          "description": "Review recent work with an agent, vet feedback, and recommend changes"
+        },
+        {
+          "path": "skills/arc-vet-wf",
+          "type": "skill",
+          "name": "arc-vet-wf",
+          "description": "Vet a Claude Code workflow with two agents in parallel"
+        },
+        {
+          "path": "skills/arc-vet-apply",
+          "type": "skill",
+          "name": "arc-vet-apply",
+          "description": "Apply recommendations from a prior /vet or /vet-wf run"
+        },
+        {
+          "path": "agents/arc-code-reviewer.md",
+          "type": "agent",
+          "name": "arc-code-reviewer",
+          "standalone": true
+        },
+        {
+          "path": "agents/arc-technical-writer.md",
+          "type": "agent",
+          "name": "arc-technical-writer",
           "standalone": true
         }
       ]

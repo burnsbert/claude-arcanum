@@ -23,6 +23,7 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 - **arc-root-cause-analyzer** - Root cause analysis for bugs.
 - **arc-deep-research** - Deep research that prioritizes completeness and correctness over speed and token efficiency. This is not for asking what the capital of Delaware is. This is for tricky questions that simpler research agents might bounce off of.
 - **arc-technical-writer** - Elite technical documentation specialist for creating, checking, and modifying technical docs. Excels at researching codebases and writing clear, accurate documentation with proper verification passes.
+- **arc-code-reviewer** - Standalone code review agent. Reviews a GitHub PR or local branch diff and produces a prose review with self-validation. Used by the vet workflow and also available for direct invocation.
 
 **Team-Based Workflows** (Agent teams with dynamic parallel investigation)
 - **arc-research-team** - Parallel deep research using a team of 3 researcher agents investigating independent threads simultaneously, with a dedicated synthesizer producing a cohesive final report. For complex, multi-faceted questions that benefit from breadth-first parallel investigation.
@@ -37,6 +38,8 @@ Claude Arcanum provides a comprehensive toolkit for Claude Code to supercharge d
 **Skills** (Self-contained workflows with scripts and references)
 - **arc-pr-review** - Comprehensive validated code reviews on GitHub PRs. Give yourself a code review or run it on a PR you are code reviewing for a code review sidekick.
 - **arc-pr-respond** - Helps you respond to a code review you have received on GitHub. Makes next steps easy with recommendations and being queued up to give Claude Code instructions for making requested adjustments to your code quickly.
+- **vet** - Quick quality check on your recent work. Auto-selects an agent (code reviewer or technical writer) based on what you changed, runs a review, filters out noise, and gives you actionable recommendations. Run `/vet-apply` to implement them.
+- **vet-wf** - Specialized for vetting Claude Code workflows (skills, agents, orchestrators). Runs two agents in parallel — a technical writer for documentation/logic quality and a code reviewer for implementation correctness.
 - **rubber-duck** - A trusted peer developer for talking through technical ideas, designs, and plans. Follows a structured conversation flow: listen and understand, explore together, strengthen the idea, and summarize. Asks one question at a time, uses codebase research to verify claims, and gives honest feedback without being a rubber stamp or a blocker.
 
 **Package Manager** (Electron app)
@@ -51,6 +54,9 @@ Skills (Self-contained)        Agents (Internal)
 ──────────────────────────    ─────────────────────
 /arc-pr-review ────────────▶  ca-pr-review-pass1 + ca-code-review-validator
 /arc-pr-respond ───────────▶  ca-pr-respond-pass1 + ca-code-review-validator
+/vet ──────────────────────▶  arc-code-reviewer OR arc-technical-writer (auto-selected)
+/vet-wf ───────────────────▶  arc-technical-writer + arc-code-reviewer (parallel)
+/vet-apply ────────────────▶  (applies recommendations from /vet or /vet-wf)
 
 Agent-Powered Commands        Agents (Internal)
 ──────────────────────────    ─────────────────────
@@ -96,6 +102,7 @@ User-Invokable Agents         Use Cases
 arc-root-cause-analyzer  ──▶  Forensic bug analysis
 arc-deep-research ───────────▶ Deep research (four-step methodology)
 arc-technical-writer ────────▶ Technical documentation creation
+arc-code-reviewer ───────────▶ Standalone code review with self-validation
 ```
 
 ## Quick Start
@@ -143,6 +150,18 @@ Need a code review sidekick? Run this to get a comprehensive three-pass validate
 ```
 Get validated analysis and prioritized response plan. Claude Code's context will be up to speed and ready to fix those nitpicks (and larger issues).
 
+**Want a quick quality check on your recent work?**
+```
+/vet
+```
+Auto-selects a reviewer agent, filters the noise, and gives you actionable recommendations. Run `/vet-apply` to implement them.
+
+**Just built a new skill or workflow?**
+```
+/vet-wf
+```
+Two agents in parallel — one reviews documentation and logic, the other reviews implementation. Synthesized into filtered recommendations.
+
 **Complex research question with multiple facets?**
 ```
 /arc-research-team How does auth work across the frontend, API, and database layers?
@@ -178,12 +197,19 @@ claude-arcanum/
 │   │   ├── SKILL.md
 │   │   ├── scripts/           # fetch-feedback.py, respond-to-html.py
 │   │   └── references/        # respond-file-format.md
-│   └── arc-rubber-duck/
+│   ├── arc-rubber-duck/
+│   │   └── SKILL.md
+│   ├── arc-vet/
+│   │   └── SKILL.md
+│   ├── arc-vet-wf/
+│   │   └── SKILL.md
+│   └── arc-vet-apply/
 │       └── SKILL.md
 ├── agents/           # Custom agent definitions
 │   ├── arc-root-cause-analyzer.md
 │   ├── arc-deep-research.md
 │   ├── arc-technical-writer.md
+│   ├── arc-code-reviewer.md
 │   ├── ca-pr-review-pass1.md
 │   ├── ca-pr-respond-pass1.md
 │   ├── ca-code-review-validator.md
@@ -817,6 +843,96 @@ The conversation flows through natural phases:
 
 # With context
 /rubber-duck I'm thinking about replacing our REST API with GraphQL
+```
+
+---
+
+#### `/vet` - Quick Quality Check
+
+**Purpose**: Review your recent work using a specialized agent, filter out noise, and present actionable recommendations. Auto-selects the right agent based on what you changed.
+
+**Powered by**:
+- `arc-code-reviewer` (agent) - For code and test changes
+- `arc-technical-writer` (agent) - For agents, skills, prompts, and documentation
+
+**How It Works**:
+1. **Determines context** from `git diff HEAD`, `git status`, and `.todo.md`
+2. **Selects agent** based on file types — code/tests get the code reviewer, agents/skills/docs get the technical writer
+3. **Runs review** via Task with focus on critical feedback, not nitpicks
+4. **Vets feedback** — keeps real bugs, security issues, and logic errors; discards style nitpicks and subjective preferences
+5. **Presents recommendations** with file:line references and brief rationale
+
+**Usage**:
+```bash
+# Auto-select agent based on recent changes
+/vet
+
+# Specify agent explicitly
+/vet arc-technical-writer
+```
+
+---
+
+#### `/vet-wf` - Workflow Quality Check
+
+**Purpose**: Vet a Claude Code workflow (skills, agents, orchestrators) using two specialist agents in parallel. One reviews documentation and logic quality, the other reviews implementation correctness.
+
+**Powered by** (run in parallel):
+- `arc-technical-writer` (agent) - Reviews SKILL.md files, agent definitions, output contracts, delegation logic
+- `arc-code-reviewer` (agent) - Reviews Python scripts, shell commands, JSON schemas for bugs
+
+**How It Works**:
+1. **Gathers context** from git state and identifies all workflow files
+2. **Launches both agents in parallel** (single message, two Task calls)
+3. **Synthesizes findings** — overlapping concerns get higher priority, noise is filtered out
+4. **Presents filtered recommendations** with file:line references
+
+**Usage**:
+```bash
+/vet-wf
+```
+
+---
+
+#### `/vet-apply` - Apply Vet Recommendations
+
+**Purpose**: Safely implement recommendations from a prior `/vet` or `/vet-wf` run. Investigates each item before touching code. Only applies changes that are unambiguously correct.
+
+**How It Works**:
+1. **Extracts recommendations** from the most recent `/vet` or `/vet-wf` output in the conversation
+2. **Investigates each item** — reads the actual code, verifies the claim, checks if already fixed
+3. **Applies or skips** based on strict criteria: problem must demonstrably exist, fix must be unambiguous, no side effects, not a style preference
+4. **Reports results** — what was applied, what was skipped (with reasons), what needs discussion
+
+**Usage**:
+```bash
+# Apply all recommendations
+/vet-apply
+
+# Apply specific items
+/vet-apply 1,3,5
+/vet-apply 1-3
+
+# Apply by description
+/vet-apply "the security items"
+```
+
+---
+
+#### `arc-code-reviewer` - Standalone Code Review Agent
+
+**Purpose**: Perform a thorough code review with built-in self-validation in a single pass. Produces a polished prose report. Used by the vet workflow and also available for direct invocation.
+
+**How It Works**:
+1. **Auto-detects** what to review: PR on current branch, staged/unstaged changes, or recent commits
+2. **Reviews** across all dimensions: database, testing, performance, documentation, correctness bugs, security, frontend, code quality, dependencies, scope alignment
+3. **Self-validates** — re-reads each finding before including it, removing false positives
+4. **Outputs** clean prose report with C#/I#/M#/S# severity IDs, checklist summary, and overall recommendation
+
+**Usage** (via Task tool):
+```
+Use arc-code-reviewer to review my recent changes
+Use arc-code-reviewer to review PR #123
 ```
 
 ---
